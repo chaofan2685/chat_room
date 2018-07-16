@@ -1,0 +1,466 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>聊天室</title>
+    <style type="text/css">
+        #aside{
+            background: #4d4d4d;
+        }
+        img{
+            /*width: 40px;*/
+            /*border-radius: 50%;*/
+        }
+        #message{
+            width: 40%;
+            margin: auto;
+            margin-bottom: 100px;
+        }
+        .botui-message{
+            min-height: 45px;
+            margin: 10px 0;
+        }
+        .botui-message-content{
+            line-height: 1.5;
+            padding: 10px 20px;
+            border-radius: 15px;
+            color: #595a5a;
+            background-color: #ebebeb;
+            width: auto;
+            max-width: 85%;
+            display: inline-block;
+        }
+        .botui-message-content2{
+            line-height: 1.5;
+            padding: 10px 20px;
+            border-radius: 15px;
+            color: #f7f8f8;
+            background-color: #00a5ff;
+            width: auto;
+            max-width: 85%;
+            display: inline-block;
+            /*float: right;*/
+        }
+        .footer{
+            width: 40%;
+            position: fixed;
+            bottom: 10px;
+            left: 30%;
+            z-index: 150;
+            /*height: 64px;*/
+            /*width: 100%;*/
+            padding:15px;
+            font-size: 16px;
+            color: #535886;
+            background: rgba(220,229,239,0.9);
+            border-radius: 40px;
+        }
+        .botui-actions-text-input {
+            border: 0;
+            outline: 0;
+            border-radius: 0;
+            padding: 5px 7px;
+            font-family: "Open Sans",sans-serif;
+            background-color: transparent;
+            color: #595a5a;
+            width: 100%;
+            /*border-bottom: 1px solid #919292;*/
+        }
+        .alert{
+            margin-left: 40px;
+            margin-top: 10px;
+        }
+    </style>
+    <script src="./js/jquery.min.js"></script>
+    <script src="./js/canvi.js"></script>
+    <script type="text/javascript" src="./js/jquery.easyui.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="./css/easyui.css" />
+    <link rel="stylesheet" type="text/css" href="./css/demo.css" />
+    <link rel="stylesheet" type="text/css" href="./css/normalize.css" />
+    <link rel="stylesheet" type="text/css" href="./css/canvi.css" />
+</head>
+
+<body onload="bind();">
+    <aside id="aside" class="myCanvasNav canvi-navbar" data-position="left" data-push-content="false" style="width: 100vw;" inert="" aria-hidden="true">
+        <div class="canvi-user-info">
+            <div class="canvi-user-info__data">
+                <span class="canvi-user-info__title">房间中的用户:</span>
+                <a href="#" class="canvi-user-info__meta">开心畅聊每一天😘</a>
+                <div class="canvi-user-info__close" onclick="t.close();"></div>
+            </div>
+        </div>
+        <ul id="cebian" class="canvi-navigation">
+        </ul>
+    </aside>
+    <main class="js-canvi-content canvi-content">
+    </main>
+    <div>
+        <button id="btn" style="display: none" class="js-canvi-open-button--left btn">查看在线人数</button>
+        <div style="display: none;">
+            <div>
+                <span>昵称：</span>
+                <input id="nick" type="text">
+            </div>
+            <div>
+                <span>房间：</span>
+                <input id="room" type="text">
+            </div>
+        </div>
+        <div id="message">
+
+            <div class="botui-message">
+                <div class="botui-message-content text">
+                    <span>你也可以嵌入第三方的资源，例如：</span>
+                </div>
+            </div>
+
+        </div>
+        <div class="footer">
+            <div>
+            <input id="text" placeholder="请输入聊天内容，回车键发送消息，别输太长，老子不会换行显示！" class="botui-actions-text-input">
+            </div>
+            <!--<div>-->
+                <!--<input type="file" id="image">-->
+                <!--<button onclick="base64()">发送</button>-->
+            <!--</div>-->
+        </div>
+    </div>
+</body>
+
+<script type="text/javascript">
+    var websocket = null;
+    var a = '<div class="botui-message"><div class="botui-message-content">';
+    var b = '</div></div>';
+    var c = '<div class="botui-message"><div class="botui-message-content2">';
+
+    var host = location.host;
+
+    //判断当前浏览器是否支持WebSocket
+    if('WebSocket' in window){
+        websocket = new WebSocket("ws://"+host+"/websocket");
+    }
+    else{
+        alert('Not support websocket')
+    }
+
+    //连接发生错误的回调方法
+    websocket.onerror = function(){
+        setMessageInnerHTML("error");
+    };
+
+    //连接成功建立的回调方法
+    websocket.onopen = function(event){
+        setMessageInnerHTML("连接成功！");
+        var html = "<div class='alert'><span>昵称：</span><input id=\"nickname\" type=\"text\"></div><div class='alert'><span>房间：</span><input id=\"roomname\" type=\"text\"></div>";
+        $.messager.alert('请输入一个昵称和房间号:',html);
+    }
+
+    //接收到消息的回调方法
+    websocket.onmessage = function(event){
+        var msg = event.data;
+        var str = msg.substring(0,8);
+        var isProp = isHidden();
+        if (str == "&system&"){
+            getStatus(msg.substring(8));
+        }else if (str == "data:img"){
+            setImgInnerHTML(msg);
+        }else {
+            setMessageInnerHTML(msg);
+            if (isProp) {
+                playSound();
+                message.show();
+            }
+            scrollToEnd();
+        }
+    }
+
+    //连接关闭的回调方法
+    websocket.onclose = function(){
+        setMessageInnerHTML("close");
+    }
+
+    //监听窗口关闭事件，当窗口关闭时，主动去关闭websocket连接，防止连接还没断开就关闭窗口，server端会抛异常。
+    window.onbeforeunload = function(){
+        websocket.close();
+    }
+
+
+    document.oncontextmenu = function(e) {
+        return false;
+    }
+
+    //监听鼠标右键点击事件，模拟点击‘#btn’的操作
+    document.onmousedown = function(e) {
+        switch(e.button) {
+            case 2:
+                $('#btn').trigger("click");
+                break;
+            default:
+                break;
+        }
+    }
+
+    //将消息显示在网页上
+    function setMessageInnerHTML(innerHTML){
+        $("#message").append(a+innerHTML+b);
+    }
+
+    //将自己发的消息显示在网页上
+    function setMessageInnerHTML2(innerHTML){
+        $("#message").append(c+innerHTML+b);
+    }
+
+    //将图片显示在网页上
+    function setImgInnerHTML(innerImg){
+        $("#message").append(a+"<img src='"+innerImg+"'"+b);
+    }
+
+    //将自己发的图片显示在网页上
+    function setImgInnerHTML2(innerImg){
+        $("#message").append(c+"<img src='"+innerImg+"'"+b);
+    }
+
+
+    //关闭连接
+    function closeWebSocket(){
+        websocket.close();
+    }
+
+    //发送消息
+    function send(){
+        var nick = document.getElementById('nick').value;
+        var msg = document.getElementById('text').value;
+        if (msg != null && msg != ""){
+            var map = new Map();
+            map.set("type","msg");
+            map.set("msg",msg);
+            var map2json=Map2Json(map);
+            websocket.send(map2json);
+            document.getElementById('text').value = null;
+            setMessageInnerHTML2("<b>"+nick+"</b>："+msg);
+        }
+    }
+
+    //发送图片
+    function sendImg(base64Img){
+        base64Img = base64Img.substring(0,8);
+        if (base64Img != null && base64Img != ""){
+            var message = '{"msg": "'+base64Img+'"}';
+            websocket.send(message);
+        }
+    }
+
+    //发送昵称和房间号
+    function sendnick(nick,room){
+        var map = new Map();
+        map.set("type","init");
+        map.set("nick",nick);
+        map.set("room",room);
+        var message = Map2Json(map);
+        websocket.send(message);
+        document.getElementById('text').value = null;
+    }
+
+    //监听回车键，发送消息
+    $(document).keydown(function(e) {
+        if (e.keyCode == 13) {
+            send();
+            scrollToEnd();
+        }
+    });
+
+    //发送消息后自动滚到底部
+    function scrollToEnd(){
+        var h = $(document).height()-$(window).height();
+        $(document).scrollTop(h);
+    }
+
+    //设置房间号和昵称并发送，再模拟‘#btn’的点击事件，以弹出侧边栏
+    function editNick() {
+        var nickname = $("#nickname").val();
+        var roomname = $("#roomname").val();
+        document.getElementById('nick').value = nickname;
+        document.getElementById('room').value = roomname;
+        if (nickname == "" || roomname == ""){
+            alert("房间号和昵称不能为空！");
+            location.reload();
+            return;
+        }
+        sendnick(nickname,roomname);
+        $('#btn').trigger("click");
+    }
+
+    //根据后端返回的状态码进行对应操作
+    function getStatus(status) {
+        if (status == '1'){
+            getOnlion(document.getElementById('room').value);
+        }
+    }
+
+    //获得当前房间中的所有用户
+    function getOnlion(room) {
+        $.ajax({
+            type: "POST",
+            url: "/ws/online",
+            data: {room:room},
+            dataType: "json",
+            success: function(data){
+                if (data.onlineNum > 0){
+                    var onlineUsera = data.onlineUsera;
+                    $("#cebian").html("");
+                    onlineUsera.forEach(function (nick) {
+                        var html = '<li>\n' +
+                            '                <a href="#" class="canvi-navigation__item">\n' +
+                            '                    <span class="canvi-navigation__icon-wrapper" style="background: #009CE5;">\n' +
+                            '                        <span class="canvi-navigation__icon icon-iconmonstr-code-13"></span>\n' +
+                            '                    </span>\n' +
+                            '                    <span class="canvi-navigation__text">'+nick+'</span>\n' +
+                            '                </a>\n' +
+                            '            </li>';
+
+                        $("#cebian").append(html);
+                    });
+                }
+            }
+        });
+    }
+
+    //播放提示音
+    function playSound(){
+        var borswer = window.navigator.userAgent.toLowerCase();
+        if ( borswer.indexOf( "ie" ) >= 0 )
+        {
+            //IE内核浏览器
+            var strEmbed = '<embed name="embedPlay" src="./audio/ding.mp3" autostart="true" hidden="true" loop="false"></embed>';
+            if ( $( "body" ).find( "embed" ).length <= 0 )
+                $( "body" ).append( strEmbed );
+            var embed = document.embedPlay;
+
+            //浏览器不支持 audion，则使用 embed 播放
+            embed.volume = 100;
+            //embed.play();
+        } else
+        {
+            //非IE内核浏览器
+            var strAudio = "<audio id='audioPlay' src='./audio/ding.mp3' hidden='true'>";
+            if ( $( "body" ).find( "audio" ).length <= 0 )
+                $( "body" ).append( strAudio );
+            var audio = document.getElementById( "audioPlay" );
+
+            //浏览器支持 audion
+            audio.play();
+        }
+    }
+
+    function getHiddenProp(){
+        var prefixes = ['webkit','moz','ms','o'];
+
+        // if 'hidden' is natively supported just return it
+        if ('hidden' in document) return 'hidden';
+
+        // otherwise loop over all the known prefixes until we find one
+        for (var i = 0; i < prefixes.length; i++){
+            if ((prefixes[i] + 'Hidden') in document)
+                return prefixes[i] + 'Hidden';
+        }
+        // otherwise it's not supported
+        return null;
+    }
+
+    function isHidden() {
+        var prop = getHiddenProp();
+        if (!prop) return false;
+        return document[prop];
+    }
+
+    var message = {
+        time: 0,
+        title: document.title,
+        timer: null,
+        // 显示新消息提示
+        show: function () {
+            var title = message.title.replace("【　　　】", "").replace("【新消息】", "");
+            // 定时器，设置消息切换频率闪烁效果就此产生
+            message.timer = setTimeout(function () {
+                message.time++;
+                message.show();
+                if (message.time % 2 == 0) {
+                    document.title = "【新消息】" + title
+                }
+
+                else {
+                    document.title = "【　　　】" + title
+                };
+            }, 600);
+            return [message.timer, message.title];
+        },
+        // 取消新消息提示
+        clear: function () {
+            clearTimeout(message.timer);
+            document.title = message.title;
+        }
+    };
+
+    var t = new Canvi({
+        content: ".js-canvi-content",
+        isDebug: !1,
+        navbar: ".myCanvasNav",
+        openButton: ".js-canvi-open-button--left",
+        position: "left",
+        pushContent: !1,
+        speed: "0.2s",
+        width: "100vw",
+        responsiveWidths: [ {
+            breakpoint: "600px",
+            width: "280px"
+        }, {
+            breakpoint: "1280px",
+            width: "320px"
+        }, {
+            breakpoint: "1600px",
+            width: "380px"
+        } ]
+    })
+
+    function bind() {
+        document.onclick = function () {
+            message.clear();
+        };
+    }
+
+    function base64() {
+        var reader = new FileReader();
+        var AllowImgFileSize = 1100000; //上传图片最大值(单位字节)（ 2 M = 2097152 B ）超过2M上传失败
+        var file = $("#image")[0].files[0];
+        var imgUrlBase64;
+        if (file) {
+            //将文件以Data URL形式读入页面
+            imgUrlBase64 = reader.readAsDataURL(file);
+            reader.onload = function (e) {
+                //var ImgFileSize = reader.result.substring(reader.result.indexOf(",") + 1).length;//截取base64码部分（可选可不选，需要与后台沟通）
+                if (AllowImgFileSize != 0 && AllowImgFileSize < reader.result.length) {
+                    alert( '上传失败，请上传不大于2M的图片！');
+                    return;
+                }else{
+                    //执行上传操作
+                    // alert(reader.result);
+                    setImgInnerHTML2(reader.result);
+                    // sendImg(reader.result);
+                }
+            }
+        }
+    }
+
+    function Map2Json(map) {
+        var str = "{";
+        map.forEach(function (value, key) {
+            str += '"'+key+'"'+':'+ '"'+value+'",';
+        })
+        str = str.substring(0,str.length-1)
+        str +="}";
+        return str;
+    }
+
+
+</script>
+</html>
