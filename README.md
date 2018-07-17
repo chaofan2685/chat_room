@@ -4,20 +4,20 @@
 使用Spring Boot + WebSocket 构建的一个简易聊天室。
 
 #### 软件架构
-软件架构说明
+Spring Boot + WebSocket
 
 
 #### 安装教程
 
-1. xxxx
-2. xxxx
-3. xxxx
+1. maven打包
+2. 部署到tomcat
+3. 如果要打jar包，请将WebSocketConfig.java类上面的注解恢复
 
 #### 使用说明
 
-1. xxxx
-2. xxxx
-3. xxxx
+1. 不需数据库支持
+2. 打开项目后输入任意昵称和房间号即可
+3. 标签页处于未打开状态时收到消息会有提示音，但具体视不同浏览器而定
 
 #### 参与贡献
 
