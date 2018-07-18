@@ -1,7 +1,11 @@
 package com.chaofan.websocket.Web;
 
 import cn.hutool.core.util.RandomUtil;
+import com.chaofan.websocket.WebsocketApplication;
 import com.chaofan.websocket.module.model.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.system.ApplicationHome;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,8 +29,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
 @RequestMapping("/ws")
 public class SocketController {
 
+    private static final Logger logger = LoggerFactory.getLogger(SocketController.class);
+
     //图片保存路径
-    private String imgPath = SocketController.class.getResource("/static/img/").getFile();
+    private String imgPath = new ApplicationHome(getClass()).getSource().getParentFile().toString()+"/img/";
+
 
     public static Map<Long,String> img = new HashMap();
 
@@ -67,6 +74,7 @@ public class SocketController {
         String fileName = file.getOriginalFilename();
         //重命名文件
         String imgName = RandomUtil.randomUUID() + fileName.substring(fileName.lastIndexOf("."));
+        logger.debug("上传图片保存在：" + imgPath + imgName);
         File dest = new File(imgPath + imgName);
         img.put(System.currentTimeMillis(),imgPath + imgName);
         //判断文件父目录是否存在
@@ -78,14 +86,16 @@ public class SocketController {
             file.transferTo(dest);
             //返回图片访问路径
             result.put("url",root +"/img/" + imgName);
+            logger.debug("图片保存成功，访问路径为："+result.get("url"));
             return result;
         } catch (IllegalStateException e) {
             e.printStackTrace();
-            return null;
+            logger.error("图片保存失败！");
         } catch (IOException e) {
             e.printStackTrace();
-            return null;
+            logger.error("图片保存失败！");
         }
+        return null;
     }
 
 
