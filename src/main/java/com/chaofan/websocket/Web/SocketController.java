@@ -28,6 +28,8 @@ public class SocketController {
     //图片保存路径
     private String imgPath = SocketController.class.getResource("/static/img/").getFile();
 
+    public static Map<Long,String> img = new HashMap();
+
     /**
      * 根据房间号获得其中的用户
      * @param room 房间号
@@ -66,6 +68,7 @@ public class SocketController {
         //重命名文件
         String imgName = RandomUtil.randomUUID() + fileName.substring(fileName.lastIndexOf("."));
         File dest = new File(imgPath + imgName);
+        img.put(System.currentTimeMillis(),imgPath + imgName);
         //判断文件父目录是否存在
         if(!dest.getParentFile().exists()){
             dest.getParentFile().mkdir();

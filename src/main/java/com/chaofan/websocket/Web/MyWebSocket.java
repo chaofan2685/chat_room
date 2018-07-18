@@ -31,6 +31,8 @@ public class MyWebSocket {
     //用以记录房间和其中用户群的对应关系
     public static HashMap<String,CopyOnWriteArraySet<User>> UserForRoom = new HashMap<String,CopyOnWriteArraySet<User>>();
 
+    private Gson gson = new Gson();
+
 
     /**
      * 连接建立成功调用的方法
@@ -56,8 +58,11 @@ public class MyWebSocket {
                     nick = user.getNickname();
                 }
             }
-            sendMessagesOther(users,"<b>系统</b>："+nick+"退出房间");
-            sendMessagesOther(users,"&system&"+StatusCode.INTO_ROOM);
+            Map<String,String> result = new HashMap<>();
+            result.put("type","init");
+            result.put("msg",nick+"离开房间");
+            result.put("sendUser","系统");
+            sendMessagesOther(users,gson.toJson(result));
             User closeUser = getUser(session);
             users.remove(closeUser);
             RoomForUser.remove(session.getId());
@@ -72,12 +77,14 @@ public class MyWebSocket {
     @OnMessage
     public void onMessage(String message, Session session) {
         Map<String,String> map = new Gson().fromJson(message, new TypeToken<HashMap<String,String>>(){}.getType());
+        Map<String,String> result = new HashMap<>();
         User user = null;
-        CopyOnWriteArraySet<User> users = getUsers(session);
         switch (map.get("type")){
             case "msg" :
                 user = getUser(session);
-                sendMessagesOther(users,"<b>"+user.getNickname()+"</b>："+map.get("msg"));
+                result.put("type","msg");
+                result.put("msg",map.get("msg"));
+                result.put("sendUser",user.getNickname());
                 break;
             case "init":
                 String room = map.get("room");
@@ -93,15 +100,20 @@ public class MyWebSocket {
                         UserForRoom.get(room).add(user);
                         RoomForUser.put(session.getId(),room);
                     }
-                    sendMessagesAll(getUsers(session),"<b>系统</b>："+nick+"成功加入房间");
-                    sendMessagesAll(getUsers(session),"&system&"+StatusCode.INTO_ROOM);
+                    result.put("type","init");
+                    result.put("msg",nick+"成功加入房间");
+                    result.put("sendUser","系统");
+                    sendMessagesAll(getUsers(session),gson.toJson(result));
                 }
-                break;
+                return;
             case "img":
                 user = getUser(session);
-                sendMessagesOther(users,"data:img&"+user.getNickname()+"&"+map.get("msg"));
+                result.put("type","img");
+                result.put("msg",map.get("msg"));
+                result.put("sendUser",user.getNickname());
                 break;
         }
+        sendMessagesOther(getUsers(session),gson.toJson(result));
     }
 
     /**
