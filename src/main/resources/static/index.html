@@ -108,21 +108,17 @@
         </div>
         <div id="message">
 
-            <div class="botui-message">
-                <div class="botui-message-content text">
-                    <span>你也可以嵌入第三方的资源，例如：</span>
-                </div>
-            </div>
-
         </div>
         <div class="footer">
             <div>
             <input id="text" placeholder="请输入聊天内容，回车键发送消息，别输太长，老子不会换行显示！" class="botui-actions-text-input">
             </div>
-            <!--<div>-->
-                <!--<input type="file" id="image">-->
-                <!--<button onclick="base64()">发送</button>-->
-            <!--</div>-->
+            <div>
+                <form id="imageUp">
+                    <input type="file" name="fileName" id="image">
+                </form>
+                <button onclick="base64()">发送</button>
+            </div>
         </div>
     </div>
 </body>
@@ -163,7 +159,8 @@
         if (str == "&system&"){
             getStatus(msg.substring(8));
         }else if (str == "data:img"){
-            setImgInnerHTML(msg);
+            var words = msg.split('&')
+            setImgInnerHTML(words[2]);
         }else {
             setMessageInnerHTML(msg);
             if (isProp) {
@@ -242,11 +239,13 @@
     }
 
     //发送图片
-    function sendImg(base64Img){
-        base64Img = base64Img.substring(0,8);
-        if (base64Img != null && base64Img != ""){
-            var message = '{"msg": "'+base64Img+'"}';
-            websocket.send(message);
+    function sendImg(url){
+        if (url != null && url != ""){
+            var map = new Map();
+            map.set("type","img");
+            map.set("msg",url);
+            var map2json=Map2Json(map);
+            websocket.send(map2json);
         }
     }
 
@@ -429,26 +428,24 @@
     }
 
     function base64() {
-        var reader = new FileReader();
-        var AllowImgFileSize = 1100000; //上传图片最大值(单位字节)（ 2 M = 2097152 B ）超过2M上传失败
-        var file = $("#image")[0].files[0];
-        var imgUrlBase64;
-        if (file) {
-            //将文件以Data URL形式读入页面
-            imgUrlBase64 = reader.readAsDataURL(file);
-            reader.onload = function (e) {
-                //var ImgFileSize = reader.result.substring(reader.result.indexOf(",") + 1).length;//截取base64码部分（可选可不选，需要与后台沟通）
-                if (AllowImgFileSize != 0 && AllowImgFileSize < reader.result.length) {
-                    alert( '上传失败，请上传不大于2M的图片！');
-                    return;
-                }else{
-                    //执行上传操作
-                    // alert(reader.result);
-                    setImgInnerHTML2(reader.result);
-                    // sendImg(reader.result);
-                }
+        var form = new FormData(document.getElementById("imageUp"));
+        $.ajax({
+            url: "/ws/fileUpload",
+            type: "POST",
+            data: form,
+            async:false,
+            processData:false,
+            contentType:false,
+            success: function (data) {
+                setImgInnerHTML2(data.url);
+                sendImg(data.url);
+            },
+            error: function (data) {
+                alert("失败");
             }
-        }
+        });
+
+
     }
 
     function Map2Json(map) {

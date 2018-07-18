@@ -73,10 +73,10 @@ public class MyWebSocket {
     public void onMessage(String message, Session session) {
         Map<String,String> map = new Gson().fromJson(message, new TypeToken<HashMap<String,String>>(){}.getType());
         User user = null;
+        CopyOnWriteArraySet<User> users = getUsers(session);
         switch (map.get("type")){
             case "msg" :
                 user = getUser(session);
-                CopyOnWriteArraySet<User> users = getUsers(session);
                 sendMessagesOther(users,"<b>"+user.getNickname()+"</b>："+map.get("msg"));
                 break;
             case "init":
@@ -96,6 +96,10 @@ public class MyWebSocket {
                     sendMessagesAll(getUsers(session),"<b>系统</b>："+nick+"成功加入房间");
                     sendMessagesAll(getUsers(session),"&system&"+StatusCode.INTO_ROOM);
                 }
+                break;
+            case "img":
+                user = getUser(session);
+                sendMessagesOther(users,"data:img&"+user.getNickname()+"&"+map.get("msg"));
                 break;
         }
     }
