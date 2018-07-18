@@ -1,6 +1,5 @@
 package com.chaofan.websocket.Web;
 
-import com.chaofan.websocket.config.StatusCode;
 import com.chaofan.websocket.module.model.User;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
