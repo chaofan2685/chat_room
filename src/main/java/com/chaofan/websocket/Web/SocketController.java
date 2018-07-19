@@ -47,8 +47,8 @@ public class SocketController {
         Map<String,Object> result = new HashMap<>();
         CopyOnWriteArraySet<User> rooms = MyWebSocket.UserForRoom.get(room);
         List<String> nicks = new ArrayList<>();
-        rooms.forEach(user -> nicks.add(user.getNickname()));
         if (rooms != null){
+            rooms.forEach(user -> nicks.add(user.getNickname()));
             result.put("onlineNum",rooms.size());
             result.put("onlineUsera",nicks);
         }else {

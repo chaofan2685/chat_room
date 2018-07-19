@@ -189,8 +189,7 @@
 
     //连接成功建立的回调方法
     websocket.onopen = function(event){
-        setMessageInnerHTML("系统","连接成功！");
-        var html = "<div class='alert'><span>昵称：</span><input id=\"nickname\" type=\"text\"></div><div class='alert'><span>房间：</span><input id=\"roomname\" type=\"text\"></div>";
+        setMessageInnerHTML("系统","成功进入大厅！");
     }
 
     //接收到消息的回调方法
@@ -213,6 +212,7 @@
                 break;
             case 'img':
                 setImgInnerHTML(nick,msg);
+                scrollToEnd();
                 break;
             default:
                 break;
@@ -491,6 +491,7 @@
                     image.value = null;
                     var url = data.url;
                     setImgInnerHTML2(nick,url);
+                    scrollToEnd();
                     if (url != null && url != ""){
                         var map = new Map();
                         map.set("type","img");
