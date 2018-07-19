@@ -109,7 +109,7 @@
     <link rel="stylesheet" type="text/css" href="./css/login.css" />
 </head>
 
-<body onload="bind();">
+<body onload="test()">
     <aside id="aside" class="myCanvasNav canvi-navbar" data-position="left" data-push-content="false" style="width: 100vw;" inert="" aria-hidden="true">
         <div class="canvi-user-info">
             <div class="canvi-user-info__data">
@@ -173,6 +173,22 @@
     var b = '</div></div>';
     var c = '<div class="botui-message"><div class="botui-message-content2">';
     var host = location.host;
+    var focus = false;
+
+    window.onfocus = function() {
+        focus = false;
+    };
+    window.onblur = function() {
+        focus = true;
+    };
+
+    // for IE
+    document.onfocusin = function() {
+        focus = false;
+    };
+    document.onfocusout = function() {
+        focus = true;
+    };
 
     //判断当前浏览器是否支持WebSocket
     if('WebSocket' in window){
@@ -195,12 +211,12 @@
     //接收到消息的回调方法
     websocket.onmessage = function(event){
         var data = JSON.parse(event.data)
-        if (isHidden()) {
-            playSound();
-            message.show();
-        }
         var msg = data.msg;
         var nick = data.sendUser;
+        if (focus) {
+            playSound();
+            notifyMe(data);
+        }
         switch(data.type){
             case 'init':
                 getOnlion(document.getElementById('room').value);
@@ -330,6 +346,7 @@
             success: function(data){
                 if (data.msg){
                     alert("昵称重复！");
+                    document.getElementById('nickname').value = '';
                     return;
                 }else {
                     sendnick(nickname,roomname);
@@ -396,54 +413,6 @@
         }
     }
 
-    function getHiddenProp(){
-        var prefixes = ['webkit','moz','ms','o'];
-
-        // if 'hidden' is natively supported just return it
-        if ('hidden' in document) return 'hidden';
-
-        // otherwise loop over all the known prefixes until we find one
-        for (var i = 0; i < prefixes.length; i++){
-            if ((prefixes[i] + 'Hidden') in document)
-                return prefixes[i] + 'Hidden';
-        }
-        // otherwise it's not supported
-        return null;
-    }
-
-    function isHidden() {
-        var prop = getHiddenProp();
-        if (!prop) return false;
-        return document[prop];
-    }
-
-    var message = {
-        time: 0,
-        title: document.title,
-        timer: null,
-        // 显示新消息提示
-        show: function () {
-            var title = message.title.replace("【　　　】", "").replace("【新消息】", "");
-            // 定时器，设置消息切换频率闪烁效果就此产生
-            message.timer = setTimeout(function () {
-                message.time++;
-                message.show();
-                if (message.time % 2 == 0) {
-                    document.title = "【新消息】" + title
-                }
-
-                else {
-                    document.title = "【　　　】" + title
-                };
-            }, 600);
-            return [message.timer, message.title];
-        },
-        // 取消新消息提示
-        clear: function () {
-            clearTimeout(message.timer);
-            document.title = message.title;
-        }
-    };
 
     var t = new Canvi({
         content: ".js-canvi-content",
@@ -465,12 +434,6 @@
             width: "380px"
         } ]
     })
-
-    function bind() {
-        document.onclick = function () {
-            message.clear();
-        };
-    }
 
 
     function sendImg() {
@@ -550,6 +513,74 @@
             return false;
         }
         return true;
+    }
+
+    function notifyMe(data) {
+        var notification = null;
+        var msg = data.msg;
+        var nick = data.sendUser;
+        var type = data.type;
+        switch(type){
+            case 'init':
+                notification = new Notification(nick,{
+                    body: msg,
+                    icon: 'http://'+host+'/msg/mail.png',
+                });
+                break;
+            case 'msg':
+                notification = new Notification(nick,{
+                    body: msg,
+                    icon: 'http://'+host+'/msg/mail.png',
+                });
+                break;
+            case 'img':
+                notification = new Notification(nick,{
+                    icon: msg,
+                    body: '你收到一张图片',
+                });
+                break;
+            default:
+                break;
+        }
+
+        // 先检查浏览器是否支持
+        if (!("Notification" in window)) {
+            alert("您的浏览器不支持桌面通知");
+        }
+
+        // 检查用户是否同意接受通知
+        else if (Notification.permission === "granted") {
+            // If it's okay let's create a notification
+            var notification1 = notification;
+            notification.onclick = function() {
+                notification.close();
+                window.resizeBy(-100,-100)
+            };
+        }
+
+        // 否则我们需要向用户获取权限
+        else if (Notification.permission !== 'denied') {
+            Notification.requestPermission(function (permission) {
+                // 如果用户同意，就可以向他们发送通知
+                if (permission === "granted") {
+                    var notification1 = notification;
+                    notification.onclick = function() {
+                        notification.close();
+                        window.resizeBy(-100,-100)
+                    };
+                }
+            });
+        }
+        // 最后，如果执行到这里，说明用户已经拒绝对相关通知进行授权
+        // 出于尊重，我们不应该再打扰他们了
+    }
+
+    function test() {
+        if (!("Notification" in window)) {
+            alert("您的浏览器不支持桌面通知");
+        }else{
+            Notification.requestPermission();
+        }
     }
 
 </script>
