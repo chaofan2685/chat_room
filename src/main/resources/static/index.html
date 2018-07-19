@@ -103,11 +103,10 @@
     </style>
     <script src="./js/jquery.min.js"></script>
     <script src="./js/canvi.js"></script>
-    <script type="text/javascript" src="./js/jquery.easyui.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="./css/easyui.css" />
     <link rel="stylesheet" type="text/css" href="./css/demo.css" />
     <link rel="stylesheet" type="text/css" href="./css/normalize.css" />
     <link rel="stylesheet" type="text/css" href="./css/canvi.css" />
+    <link rel="stylesheet" type="text/css" href="./css/login.css" />
 </head>
 
 <body onload="bind();">
@@ -122,8 +121,9 @@
         <ul id="cebian" class="canvi-navigation">
         </ul>
     </aside>
-    <main class="js-canvi-content canvi-content">
-    </main>
+
+    <main class="js-canvi-content canvi-content"></main>
+
     <div>
         <button id="btn" style="display: none" class="js-canvi-open-button--left btn">查看在线人数</button>
         <div style="display: none;">
@@ -149,6 +149,22 @@
             <input type="file" class="myFileUpload" name="fileName" id="image" onchange="sendImg()"/>
         </form>
     </div>
+
+    <div class="login" id="window">
+        <div class="login-title">进入房间</div>
+        <div class="login-input-content">
+            <div class="login-input">
+                <label>昵称：</label>
+                <input type="text" placeholder="请输入昵称"   id="nickname" class="list-input"/>
+            </div>
+            <div class="login-input">
+                <label>房间：</label>
+                <input type="text" placeholder="请输入房间号"  id="roomname" class="list-input"/>
+            </div>
+        </div>
+        <div class="login-button" onclick="editNick()"><a style="text-decoration:none;color:#ffffff;" href="javascript:void(0);" id="login-button-submit">进入</a></div>
+    </div>
+
 </body>
 
 <script type="text/javascript">
@@ -175,7 +191,6 @@
     websocket.onopen = function(event){
         setMessageInnerHTML("系统","连接成功！");
         var html = "<div class='alert'><span>昵称：</span><input id=\"nickname\" type=\"text\"></div><div class='alert'><span>房间：</span><input id=\"roomname\" type=\"text\"></div>";
-        $.messager.alert('请输入一个昵称和房间号:',html);
     }
 
     //接收到消息的回调方法
@@ -305,12 +320,25 @@
         document.getElementById('room').value = roomname;
         if (nickname == "" || roomname == ""){
             alert("房间号和昵称不能为空！");
-            location.reload();
             return;
         }
-        sendnick(nickname,roomname);
-        $('#btn').trigger("click");
-        getOnlion(document.getElementById('room').value);
+        $.ajax({
+            type: "POST",
+            url: "/ws/judgeNick",
+            data: {room:roomname,nick:nickname},
+            dataType: "json",
+            success: function(data){
+                if (data.msg){
+                    alert("昵称重复！");
+                    return;
+                }else {
+                    sendnick(nickname,roomname);
+                    $("#window").css('display','none');
+                    $('#btn').trigger("click");
+                    getOnlion(document.getElementById('room').value);
+                }
+            }
+        });
     }
 
     //获得当前房间中的所有用户
@@ -327,7 +355,7 @@
                     onlineUsera.forEach(function (nick) {
                         var html = '<li>\n' +
                             '                <a href="#" class="canvi-navigation__item">\n' +
-                            '                    <span class="canvi-navigation__icon-wrapper" style="background: #00a342;">\n' +
+                            '                    <span class="canvi-navigation__icon-wrapper" style="background: #00ce46;">\n' +
                             '                        <span class="canvi-navigation__icon icon-iconmonstr-code-13"></span>\n' +
                             '                    </span>\n' +
                             '                    <span class="canvi-navigation__text">'+nick+'</span>\n' +
@@ -517,7 +545,7 @@
     }
 
     function checkFileExt(ext) {
-        if (!ext.match(/.jpg|.gif|.png|.bmp/i)) {
+        if (!ext.match(/.jpg|.jpeg|.gif|.png|.bmp/i)) {
             return false;
         }
         return true;

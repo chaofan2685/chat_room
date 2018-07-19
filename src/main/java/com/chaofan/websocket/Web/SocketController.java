@@ -58,6 +58,28 @@ public class SocketController {
         return result;
     }
 
+    /**
+     * 判断昵称在某个房间中是否已存在
+     * @param room 房间号
+     * @param nick 昵称
+     * @return
+     */
+    @RequestMapping("/judgeNick")
+    public Map<String,Object> judgeNick(String room, String nick){
+        Map<String,Object> result = new HashMap<>();
+        result.put("msg",false);
+        CopyOnWriteArraySet<User> rooms = MyWebSocket.UserForRoom.get(room);
+        if (rooms != null){
+            rooms.forEach(user -> {
+                if (user.getNickname().equals(nick)){
+                    result.put("msg",true);
+                    logger.debug("有重复");
+                }
+            });
+        }
+        return result;
+    }
+
 
     /**
      * 实现文件上传

@@ -1,0 +1,75 @@
+.login{
+    width:320px;
+    position:fixed;
+    border:#ebebeb solid 1px;
+    height:210px;
+    top:50%;
+    left:55%;
+    background:#ffffff;
+    box-shadow:0px 0px 20px #ddd;
+    z-index:9999;
+    margin-left:-250px;
+    margin-top:-140px;
+}
+.login-title{
+    width:100%;
+    margin:10px 0px 0px 0px;
+    text-align:center;
+    line-height:40px;
+    height:40px;
+    font-size:18px;
+    position:relative;
+}
+.login-title span{
+    position:absolute;
+    font-size:12px;
+    right:-20px;
+    top:-30px;
+    background:#ffffff;
+    border:#ebebeb solid 1px;
+    width:40px;
+    height:40px;
+    border-radius:20px;
+}
+.login-title span a{
+    display:block;
+}
+.login-input-content{
+    margin-top:10px;
+}
+.login-input {
+    overflow:hidden;
+    margin:0px 0px 10px 0px;
+}
+.login-input label{
+    float:left;
+    width:90px;
+    padding-right:10px;
+    text-align:right;
+    line-height:35px;
+    height:35px;
+    font-size:18px;
+}
+.login-input input.list-input{
+    float:left;
+    line-height:35px;
+    height:35px;
+    width:200px;
+    border:#ebebeb 0px solid;
+    text-indent:5px;
+    border-bottom-width: 1px;
+}
+.login-button{
+    background: #00b3ee;
+    width:25%;
+    margin:10px auto 0px auto;
+    line-height:30px;
+    font-size:14px;
+    text-align:center;
+    border-radius: 40px;
+    position: absolute;
+    right: 8%;
+}
+.login-button a{
+    display:block;
+}
