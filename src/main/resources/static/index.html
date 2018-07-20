@@ -11,13 +11,19 @@
             width: 100%;
         }
         #message{
-            width: 40%;
+            width: 77%;
             margin: auto;
             margin-bottom: 100px;
+            margin-left: 22%;
         }
-        .botui-message{
+        .botui-message-left{
             min-height: 45px;
             margin: 10px 0;
+        }
+        .botui-message-right{
+            min-height: 45px;
+            margin: 10px 0;
+            text-align: right;
         }
         .botui-message-content{
             line-height: 1.5;
@@ -26,7 +32,7 @@
             color: #595a5a;
             background-color: #ebebeb;
             width: auto;
-            max-width: 85%;
+            max-width: 80%;
             display: inline-block;
         }
         .botui-message-content2{
@@ -36,22 +42,23 @@
             color: #f7f8f8;
             background-color: #00a5ff;
             width: auto;
-            max-width: 85%;
+            max-width: 80%;
             display: inline-block;
+            text-align: start;
             /*float: right;*/
         }
         .footer{
-            width: 40%;
+            width: 77%;
             position: fixed;
             bottom: 10px;
-            left: 30%;
+            left: 22%;
             z-index: 150;
             /*height: 64px;*/
             /*width: 100%;*/
             padding:15px;
             font-size: 16px;
             color: #535886;
-            background: rgba(220,229,239,0.9);
+            background: rgba(231, 231, 231, 0.91);
             border-radius: 40px;
         }
         .botui-actions-text-input {
@@ -97,7 +104,7 @@
         #imageUp{
             position: fixed;
             bottom: 20px;
-            right: 31%;
+            right: 2%;
             z-index: 151;
         }
     </style>
@@ -115,7 +122,10 @@
             <div class="canvi-user-info__data">
                 <span class="canvi-user-info__title">房间中的用户:</span>
                 <a href="#" class="canvi-user-info__meta">开心畅聊每一天😘</a>
-                <div class="canvi-user-info__close" onclick="t.close();"></div>
+                <!--<div class="canvi-user-info__close" onclick="t.close();"></div>-->
+                <div class="canvi-user-info__close" onclick="silence()">
+                    <img id="mute" src="./icon/unmute.png" style="width: 25px;">
+                </div>
             </div>
         </div>
         <ul id="cebian" class="canvi-navigation">
@@ -169,11 +179,12 @@
 
 <script type="text/javascript">
     var websocket = null;
-    var a = '<div class="botui-message"><div class="botui-message-content">';
+    var a = '<div class="botui-message-left"><div class="botui-message-content">';
     var b = '</div></div>';
-    var c = '<div class="botui-message"><div class="botui-message-content2">';
+    var c = '<div class="botui-message-right"><div class="botui-message-content2">';
     var host = location.host;
     var focus = false;
+    var mute = 2;
 
     window.onfocus = function() {
         focus = false;
@@ -213,7 +224,7 @@
         var data = JSON.parse(event.data)
         var msg = data.msg;
         var nick = data.sendUser;
-        if (focus) {
+        if (focus && mute%2==0) {
             playSound();
             notifyMe(data);
         }
@@ -263,12 +274,12 @@
 
     //将消息显示在网页上
     function setMessageInnerHTML(nick,msg){
-        $("#message").append("<b>"+nick+":</b>"+a+msg+b);
+        $("#message").append("<div style=\"margin-top: 15px;\"><b>"+nick+"</b></div>"+a+msg+b);
     }
 
     //将自己发的消息显示在网页上
     function setMessageInnerHTML2(nick,msg){
-        $("#message").append("<b>"+nick+":</b>"+c+msg+b);
+        $("#message").append("<div style='text-align: right;margin-top: 15px;'><b>"+nick+"</b></div>"+c+msg+b);
     }
 
     //将图片显示在网页上
@@ -425,13 +436,13 @@
         width: "100vw",
         responsiveWidths: [ {
             breakpoint: "600px",
-            width: "280px"
+            width: "21%"
         }, {
             breakpoint: "1280px",
-            width: "320px"
+            width: "21%"
         }, {
             breakpoint: "1600px",
-            width: "380px"
+            width: "21%"
         } ]
     })
 
@@ -580,6 +591,15 @@
             alert("您的浏览器不支持桌面通知");
         }else{
             Notification.requestPermission();
+        }
+    }
+    
+    function silence() {
+        mute++;
+        if (mute%2 == 0){
+            $('#mute').attr("src","./icon/unmute.png");
+        }else {
+            $('#mute').attr("src","./icon/mute.png");
         }
     }
 
