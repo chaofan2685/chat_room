@@ -123,9 +123,8 @@
     <aside id="aside" class="myCanvasNav canvi-navbar" data-position="left" data-push-content="false" style="width: 100vw;" inert="" aria-hidden="true">
         <div class="canvi-user-info">
             <div class="canvi-user-info__data">
-                <span class="canvi-user-info__title">房间中的用户:</span>
-                <a href="#" class="canvi-user-info__meta">开心畅聊每一天😘</a>
-                <!--<div class="canvi-user-info__close" onclick="t.close();"></div>-->
+                <span id="activeUser" class="canvi-user-info__title">房间号:</span>
+                <a id="activeRoom" href="#" class="canvi-user-info__meta">开心畅聊每一天😘</a>
                 <div class="canvi-user-info__close" onclick="silence()">
                     <img id="mute" src="./icon/unmute.png" style="width: 25px;">
                 </div>
@@ -365,6 +364,8 @@
                 }else {
                     sendnick(nickname,roomname);
                     $("#window").css('display','none');
+                    document.getElementById('activeUser').innerText = nickname;
+                    document.getElementById('activeRoom').innerText = '房间：'+roomname;
                     $('#btn').trigger("click");
                     getOnlion(document.getElementById('room').value);
                 }
