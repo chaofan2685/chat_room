@@ -110,6 +110,25 @@
         .sendUser{
             margin-top: 15px;
         }
+        .list-input::-webkit-input-placeholder{
+            color: #777;
+            font-size: 14px;
+        }
+        /* Mozilla Firefox 4 to 18 */
+        .list-input::-moz-placeholder {
+            color: #777;
+            font-size: 14px;
+        }
+        /* Mozilla Firefox 19+ */
+        .list-input::-moz-placeholder {
+            color: #777;
+            font-size: 14px;
+        }
+        /* Internet Explorer 10+ */
+        .list-input:-ms-input-placeholder {
+            color: #777;
+            font-size: 14px;
+        }
     </style>
     <script src="./js/jquery.min.js"></script>
     <script src="./js/canvi.js"></script>
@@ -171,7 +190,8 @@
             </div>
             <div class="login-input">
                 <label>房间：</label>
-                <input type="text" placeholder="请输入房间号"  id="roomname" class="list-input"/>
+                <input type="text" placeholder="可选择已存在的房间" onfocus="allRoom()"  id="roomname" class="list-input" list="rooms"/>
+                <datalist id="rooms"></datalist>
             </div>
         </div>
         <div class="login-button" onclick="editNick()"><a style="text-decoration:none;color:#ffffff;" href="javascript:void(0);" id="login-button-submit">进入</a></div>
@@ -596,6 +616,23 @@
         }else{
             Notification.requestPermission();
         }
+    }
+    
+    function allRoom(){
+        $.ajax({
+            type: "POST",
+            url: "/ws/allRoom",
+            dataType: "json",
+            success: function(data){
+                var rooms = data.rooms;
+                $("#rooms").empty();
+                rooms.forEach(function (room) {
+                    var html = '<option value="'+room+'">';
+                    $("#rooms").append(html);
+                });
+
+            }
+        });
     }
     
     function silence() {

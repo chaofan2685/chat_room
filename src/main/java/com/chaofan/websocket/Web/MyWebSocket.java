@@ -24,10 +24,10 @@ public class MyWebSocket {
     //与某个客户端的连接会话，需要通过它来给客户端发送数据
     private Session session;
 
-    //用以记录用户和房间号的对应关系
+    //用以记录用户和房间号的对应关系(sessionId,room)
     private static HashMap<String,String> RoomForUser = new HashMap<String,String>();
 
-    //用以记录房间和其中用户群的对应关系
+    //用以记录房间和其中用户群的对应关系(room,List<用户>)
     public static HashMap<String,CopyOnWriteArraySet<User>> UserForRoom = new HashMap<String,CopyOnWriteArraySet<User>>();
 
     private Gson gson = new Gson();
@@ -64,6 +64,10 @@ public class MyWebSocket {
             sendMessagesOther(users,gson.toJson(result));
             User closeUser = getUser(session);
             users.remove(closeUser);
+            if (users.size() == 0){
+                String room = RoomForUser.get(session.getId());
+                UserForRoom.remove(room);
+            }
             RoomForUser.remove(session.getId());
         }
     }

@@ -120,5 +120,21 @@ public class SocketController {
         return null;
     }
 
+    /**
+     * 获取所有房间
+     * @return
+     */
+    @RequestMapping("/allRoom")
+    public Map<String,Object> allRoom(){
+        Map<String,Object> result = new HashMap<>();
+        HashMap<String,CopyOnWriteArraySet<User>> userForRoom = MyWebSocket.UserForRoom;
+        List<String> rooms = new ArrayList<>();
+        for (String key : userForRoom.keySet()) {
+            rooms.add(key);
+        }
+        result.put("rooms",rooms);
+        return result;
+    }
+
 
 }
