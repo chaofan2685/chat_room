@@ -30,12 +30,12 @@ Spring Boot + WebSocket
 #### 界面展示
 ##### 1. 登录界面
 
-![登录界面](img/login.png)
+![登录界面](https://images.gitee.com/uploads/images/2018/0803/113321_b6f7ad1d_687582.png "login.png")
 
 ##### 2. 主界面
 
-![主界面](img/home.png)
+![主界面](https://images.gitee.com/uploads/images/2018/0803/113351_4e7dad82_687582.png "home.png")
 
 ##### 3. 消息通知
 
-![消息通知](img/message.png)
+![消息通知](https://images.gitee.com/uploads/images/2018/0803/113417_ff72aedc_687582.png "message.png")
