@@ -90,7 +90,7 @@
             font-family: "Open Sans",sans-serif;
             background-color: transparent;
             color: #595a5a;
-            width: 85%;
+            width: 90%;
         }
         .alert{
             margin-left: 40px;
@@ -188,15 +188,15 @@
                 <input id="room" type="text">
             </div>
         </div>
-        <div id="message">
+        <div id="message" style="display: none">
 
         </div>
-        <div class="footer">
+        <div id="footer" class="footer" style="bottom: -100px">
             <div>
-                <input id="text" placeholder="请输入聊天内容，回车键发送消息，别输太长，老子不会换行显示！" class="botui-actions-text-input">
+                <input id="text" placeholder="请输入聊天内容，回车键发送消息！" class="botui-actions-text-input">
             </div>
         </div>
-        <form id="imageUp">
+        <form id="imageUp" style="bottom: -100px">
             <a href='javascript:void(0);' class="blueButton">斗图</a>
             <input type="file" class="myFileUpload" name="fileName" id="image" onchange="sendImg()"/>
         </form>
@@ -211,7 +211,7 @@
             </div>
             <div class="login-input">
                 <label>房间：</label>
-                <input type="text" placeholder="可选择已存在的房间" onfocus="allRoom()"  id="roomname" class="list-input" list="rooms"/>
+                <input type="text" placeholder="可选择房间" onfocus="allRoom()"  id="roomname" class="list-input" list="rooms"/>
                 <datalist id="rooms"></datalist>
             </div>
         </div>
@@ -256,12 +256,13 @@
 
     //连接发生错误的回调方法
     websocket.onerror = function(){
-        setMessageInnerHTML("系统","error");
+        // setMessageInnerHTML("系统","error");
+        alert("与服务器连接发生错误，点击确定将重新进入！");
     };
 
     //连接成功建立的回调方法
     websocket.onopen = function(event){
-        setMessageInnerHTML("系统","成功进入大厅！");
+        // setMessageInnerHTML("系统","成功进入大厅！");
     }
 
     //接收到消息的回调方法
@@ -286,6 +287,9 @@
                 setImgInnerHTML(nick,msg);
                 scrollToEnd();
                 break;
+            case 'bing':
+                $('body').css("background-image","url("+msg+")");
+                break;
             default:
                 break;
         }
@@ -293,7 +297,7 @@
 
     //连接关闭的回调方法
     websocket.onclose = function(){
-        setMessageInnerHTML("系统","close");
+        setMessageInnerHTML("系统","已与服务器断开连接！");
     }
 
     //监听窗口关闭事件，当窗口关闭时，主动去关闭websocket连接，防止连接还没断开就关闭窗口，server端会抛异常。
@@ -406,11 +410,15 @@
                     return;
                 }else {
                     sendnick(nickname,roomname);
-                    $("#window").css('display','none');
                     document.getElementById('activeUser').innerText = nickname;
                     document.getElementById('activeRoom').innerText = '房间：'+roomname;
                     $('#btn').trigger("click");
                     getOnlion(document.getElementById('room').value);
+                    $('body').css("background-image","none");
+                    $("#window").animate({top:'-100%'},500);
+                    $("#footer").animate({bottom:'10px'},400);
+                    $("#imageUp").animate({bottom:'20px'},500);
+                    $("#message").show();
                 }
             }
         });

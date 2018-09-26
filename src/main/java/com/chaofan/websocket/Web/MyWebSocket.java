@@ -30,17 +30,26 @@ public class MyWebSocket {
     //用以记录房间和其中用户群的对应关系(room,List<用户>)
     public static HashMap<String,CopyOnWriteArraySet<User>> UserForRoom = new HashMap<String,CopyOnWriteArraySet<User>>();
 
+    //用来存放必应壁纸
+    public static List<String> BingImages = new ArrayList<>();
+
     private Gson gson = new Gson();
 
+    private Random random = new Random();
 
     /**
      * 连接建立成功调用的方法
      * @param session
      */
     @OnOpen
-    public void onOpen(Session session) {
+    public void onOpen(Session session) throws IOException {
         this.session = session;
         addOnlineCount();
+        Map<String,String> result = new HashMap<>();
+        result.put("type","bing");
+        result.put("msg",BingImages.get(random.nextInt(BingImages.size())));
+        result.put("sendUser","系统");
+        this.sendMessage(gson.toJson(result));
     }
 
     /**

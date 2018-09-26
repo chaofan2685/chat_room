@@ -1,5 +1,6 @@
 package com.chaofan.websocket.config;
 
+import com.chaofan.websocket.Util.BingImageUtil;
 import com.chaofan.websocket.Web.SocketController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +21,9 @@ public class QuartzService {
 
     private static final Logger logger = LoggerFactory.getLogger(QuartzService.class);
 
+    /**
+     * 定期删除聊天图片
+     */
     @Scheduled(cron = "0 0/1 * * * ?")
     public void timerToNow(){
         logger.debug("开始查询需要删除的图片。。。。。。。。。。");
@@ -37,6 +41,16 @@ public class QuartzService {
             }
         }
         logger.debug("删除任务执行完毕，共删除"+a+"张图片");
+    }
+
+    /**
+     * 定期下载必应壁纸,每天中午12点触发
+     */
+    @Scheduled(cron = "0 0 12 * * ?")
+    public void dowBingImage(){
+        logger.debug("开始同步必应壁纸。。。。。。。。。。");
+        Integer i = BingImageUtil.download(0,1);
+        logger.debug("本次同步了"+i+"张壁纸！");
     }
 
     private boolean deleteFile(String fileName) {
