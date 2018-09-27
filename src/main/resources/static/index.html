@@ -30,10 +30,11 @@
             padding: 10px 20px;
             border-radius: 15px;
             color: #595a5a;
-            background-color: #ebebeb;
+            background-color: #ffffff;
             width: auto;
             max-width: 80%;
             display: inline-block;
+            margin-left: -40px;
         }
         .botui-message-content-img{
             line-height: 1.5;
@@ -44,6 +45,7 @@
             width: auto;
             max-width: 80%;
             display: inline-block;
+            margin-left: -40px;
         }
         .botui-message-content2{
             line-height: 1.5;
@@ -55,6 +57,7 @@
             max-width: 80%;
             display: inline-block;
             text-align: start;
+            margin-right: -40px;
             /*float: right;*/
         }
         .botui-message-content2-img{
@@ -66,6 +69,7 @@
             max-width: 80%;
             display: inline-block;
             text-align: start;
+            margin-right: -40px;
             /*float: right;*/
         }
         .footer{
@@ -79,7 +83,7 @@
             padding:15px;
             font-size: 16px;
             color: #535886;
-            background: rgba(231, 231, 231, 0.91);
+            background: rgba(255, 255, 255, 0.90);
             border-radius: 40px;
         }
         .botui-actions-text-input {
@@ -159,7 +163,7 @@
     <link rel="stylesheet" type="text/css" href="./css/login.css" />
 </head>
 
-<body onload="test()">
+<body onload="test()" style="background-color: rgb(230, 230, 230)">
     <aside id="aside" class="myCanvasNav canvi-navbar" data-position="left" data-push-content="false" style="width: 100vw;" inert="" aria-hidden="true">
         <div class="canvi-user-info">
             <div class="canvi-user-info__data">
@@ -324,21 +328,25 @@
     //将消息显示在网页上
     function setMessageInnerHTML(nick,msg){
         $("#message").append("<div class='sendUser'><b>"+nick+"</b></div>"+a+msg+b);
+        $(".botui-message-content").animate({'margin-left':'0px'},300);
     }
 
     //将自己发的消息显示在网页上
     function setMessageInnerHTML2(nick,msg){
         $("#message").append("<div class='sendUser' style='text-align: right;'><b>"+nick+"</b></div>"+c+msg+b);
+        $(".botui-message-content2").animate({'margin-right':'0px'},300);
     }
 
     //将图片显示在网页上
     function setImgInnerHTML(nick,msg){
         $("#message").append("<div class='sendUser'><b>"+nick+"</b></div>"+aa+"<img style=\"max-width: -moz-available;\" src='"+msg+"'"+b);
+        $(".botui-message-content-img").animate({'margin-left':'0px'},300);
     }
 
     //将自己发的图片显示在网页上
     function setImgInnerHTML2(nick,msg){
         $("#message").append("<div class='sendUser' style='text-align: right;'><b>"+nick+"</b></div>"+cc+"<img style=\"max-width: -moz-available;\" src='"+msg+"'"+b);
+        $(".botui-message-content2-img").animate({'margin-right':'0px'},300);
     }
 
 
