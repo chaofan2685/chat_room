@@ -96,10 +96,6 @@
             color: #595a5a;
             width: 90%;
         }
-        .alert{
-            margin-left: 40px;
-            margin-top: 10px;
-        }
         .blueButton
         {
             position: absolute;
@@ -157,18 +153,23 @@
     </style>
     <script src="./js/jquery.min.js"></script>
     <script src="./js/canvi.js"></script>
+    <script src="./js/jquery.easyui.min.js"></script>
+    <script src="./js/layui.all.js"></script>
     <link rel="stylesheet" type="text/css" href="./css/demo.css" />
     <link rel="stylesheet" type="text/css" href="./css/normalize.css" />
     <link rel="stylesheet" type="text/css" href="./css/canvi.css" />
     <link rel="stylesheet" type="text/css" href="./css/login.css" />
+    <link rel="stylesheet" type="text/css" href="./css/easyui.css" />
+    <link rel="stylesheet" type="text/css" href="./css/layui.css" />
 </head>
 
-<body onload="test()" style="background-color: rgb(230, 230, 230)">
+<body onload="checkNotification()" style="background-color: rgb(230, 230, 230)">
     <aside id="aside" class="myCanvasNav canvi-navbar" data-position="left" data-push-content="false" style="width: 100vw;" inert="" aria-hidden="true">
-        <div class="canvi-user-info">
+        <div class="canvi-user-info" style="padding-top: 20px;padding-bottom: 20px;">
             <div class="canvi-user-info__data">
-                <span id="activeUser" class="canvi-user-info__title">房间号:</span>
-                <a id="activeRoom" href="#" class="canvi-user-info__meta">开心畅聊每一天😘</a>
+                <span id="activeRoom" class="canvi-user-info__title">房间号:</span>
+                <!--<a id="activeUser" class="canvi-user-info__meta">开心畅聊每一天😘</a><br>-->
+                <a id="activePwd" class="canvi-user-info__meta"></a>
                 <div class="canvi-user-info__close" onclick="silence()">
                     <img id="mute" src="./icon/unmute.png" style="width: 25px;">
                 </div>
@@ -217,6 +218,10 @@
                 <label>房间：</label>
                 <input type="text" placeholder="可选择房间" onfocus="allRoom()"  id="roomname" class="list-input" list="rooms"/>
                 <datalist id="rooms"></datalist>
+            </div>
+            <div class="login-input" style="height: 0px">
+                <label>密码：</label>
+                <input type="password" placeholder="密码可留空" onfocus="allRoom()"  id="password" class="list-input" list="rooms"/>
             </div>
         </div>
         <div class="login-button" onclick="editNick()"><a style="text-decoration:none;color:#ffffff;" href="javascript:void(0);" id="login-button-submit">进入</a></div>
@@ -313,15 +318,15 @@
     }
 
     //监听鼠标右键点击事件，模拟点击‘#btn’的操作
-    document.onmousedown = function(e) {
-        switch(e.button) {
-            case 2:
-                $('#btn').trigger("click");
-                break;
-            default:
-                break;
-        }
-    }
+    // document.onmousedown = function(e) {
+    //     switch(e.button) {
+    //         case 2:
+    //             $('#btn').trigger("click");
+    //             break;
+    //         default:
+    //             break;
+    //     }
+    // }
 
     //将消息显示在网页上
     function setMessageInnerHTML(nick,msg){
@@ -374,14 +379,29 @@
 
 
     //发送昵称和房间号
-    function sendnick(nick,room){
+    function sendnick(nick,room,pwd){
         var map = new Map();
         map.set("type","init");
         map.set("nick",nick);
         map.set("room",room);
+        map.set("pwd",pwd);
         var message = Map2Json(map);
         websocket.send(message);
         document.getElementById('text').value = null;
+        // document.getElementById('activeUser').innerText = '昵称：'+nick;
+        document.getElementById('activeRoom').innerText = '房间：'+room;
+        if (pwd != null && pwd != ""){
+            document.getElementById('activePwd').innerText = '密码：'+pwd;
+        }else {
+            $("#activePwd").css('display','none');
+        }
+        $('#btn').trigger("click");
+        getOnlion(document.getElementById('room').value);
+        $('body').css("background-image","none");
+        $("#window").animate({top:'-100%'},500);
+        $("#footer").animate({bottom:'10px'},400);
+        $("#imageUp").animate({bottom:'20px'},500);
+        $("#message").show();
     }
 
     //监听回车键，发送消息
@@ -401,6 +421,7 @@
     function editNick() {
         var nickname = $("#nickname").val();
         var roomname = $("#roomname").val();
+        var password = $("#password").val();
         document.getElementById('nick').value = nickname;
         document.getElementById('room').value = roomname;
         if (nickname == "" || roomname == ""){
@@ -410,28 +431,47 @@
         $.ajax({
             type: "POST",
             url: "/ws/judgeNick",
-            data: {room:roomname,nick:nickname},
+            data: {room:roomname,nick:nickname,pwd:password},
             dataType: "json",
             success: function(data){
-                if (data.msg){
-                    alert("昵称重复！");
+                //房间存在但是昵称重复
+                if (data.code == 1){
+                    alert(data.msg);
                     document.getElementById('nickname').value = '';
                     return;
+                }else if (data.code == 2){ //房间存在但是密码错误
+                    if (password == null || password == ""){
+                        if ($(".login").css("height") == "300px"){
+                            alert("请输入密码");
+                        }else {
+                            ejectPwd("该房间需要密码");
+                        }
+                    }else {
+                        alert(data.msg);
+                        document.getElementById('password').value = "";
+                    }
+                    return;
+                }else if (data.code == 0){
+                    //表示房间不存在
+                    if (password == null || password == ""){
+                        layer.confirm('需要为该房间添加一个密码吗？', {
+                            btn: ['需要','不用'] //按钮
+                        }, function(){
+                            ejectPwd("请输入一个密码");
+                            layer.closeAll('dialog');
+                        }, function(){
+                            sendnick(nickname,roomname,password);
+                        });
+                    }else {
+                        sendnick(nickname,roomname,password);
+                    }
                 }else {
-                    sendnick(nickname,roomname);
-                    document.getElementById('activeUser').innerText = nickname;
-                    document.getElementById('activeRoom').innerText = '房间：'+roomname;
-                    $('#btn').trigger("click");
-                    getOnlion(document.getElementById('room').value);
-                    $('body').css("background-image","none");
-                    $("#window").animate({top:'-100%'},500);
-                    $("#footer").animate({bottom:'10px'},400);
-                    $("#imageUp").animate({bottom:'20px'},500);
-                    $("#message").show();
+                    sendnick(nickname,roomname,password);
                 }
             }
         });
     }
+
 
     //获得当前房间中的所有用户
     function getOnlion(room) {
@@ -446,7 +486,7 @@
                     $("#cebian").html("");
                     onlineUsera.forEach(function (nick) {
                         var html = '<li>\n' +
-                            '                <a href="#" class="canvi-navigation__item">\n' +
+                            '                <a class="canvi-navigation__item">\n' +
                             '                    <span class="canvi-navigation__icon-wrapper" style="background: #00ce46;">\n' +
                             '                        <span class="canvi-navigation__icon icon-iconmonstr-code-13"></span>\n' +
                             '                    </span>\n' +
@@ -649,7 +689,9 @@
         // 出于尊重，我们不应该再打扰他们了
     }
 
-    function test() {
+    function checkNotification() {
+        $(".login").animate({height:'250px'},200);
+        $(".login-input-content").animate({'margin-top':'0px'},200);
         if (!("Notification" in window)) {
             alert("您的浏览器不支持桌面通知");
         }else{
@@ -681,6 +723,13 @@
         }else {
             $('#mute').attr("src","./icon/mute.png");
         }
+    }
+
+    // 弹出密码框
+    function ejectPwd(message) {
+        $(".login-input").animate({height:'35px'},300);
+        $(".login").animate({height:'300px'},300);
+        $("#password").attr('placeholder',message);
     }
 
 </script>

@@ -1,5 +1,6 @@
 package com.chaofan.websocket.Web;
 
+import cn.hutool.core.util.StrUtil;
 import com.chaofan.websocket.module.model.User;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -29,6 +30,9 @@ public class MyWebSocket {
 
     //用以记录房间和其中用户群的对应关系(room,List<用户>)
     public static HashMap<String,CopyOnWriteArraySet<User>> UserForRoom = new HashMap<String,CopyOnWriteArraySet<User>>();
+
+    //用以记录房间和其中用户群的对应关系(room,List<用户>)
+    public static HashMap<String,String> PwdForRoom = new HashMap<String,String>();
 
     //用来存放必应壁纸
     public static List<String> BingImages = new ArrayList<>();
@@ -101,12 +105,17 @@ public class MyWebSocket {
             case "init":
                 String room = map.get("room");
                 String nick = map.get("nick");
+                String pwd = map.get("pwd");
                 if (room != null && nick != null){
                     user = new User(session.getId(),nick,this);
+                    //如果房间不存在，新建房间
                     if (UserForRoom.get(room) == null){
                         CopyOnWriteArraySet<User> roomUsers = new CopyOnWriteArraySet<>();
                         roomUsers.add(user);
                         UserForRoom.put(room,roomUsers);
+                        if (StrUtil.isNotEmpty(pwd)){
+                            PwdForRoom.put(room,pwd);
+                        }
                         RoomForUser.put(session.getId(),room);
                     }else {
                         UserForRoom.get(room).add(user);

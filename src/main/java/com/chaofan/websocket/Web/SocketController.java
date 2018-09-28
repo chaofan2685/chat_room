@@ -1,6 +1,7 @@
 package com.chaofan.websocket.Web;
 
 import cn.hutool.core.util.RandomUtil;
+import cn.hutool.core.util.StrUtil;
 import com.chaofan.websocket.WebsocketApplication;
 import com.chaofan.websocket.module.model.User;
 import org.slf4j.Logger;
@@ -65,17 +66,26 @@ public class SocketController {
      * @return
      */
     @RequestMapping("/judgeNick")
-    public Map<String,Object> judgeNick(String room, String nick){
+    public Map<String,Object> judgeNick(String room, String nick, String pwd){
         Map<String,Object> result = new HashMap<>();
-        result.put("msg",false);
+        result.put("code",0);
         CopyOnWriteArraySet<User> rooms = MyWebSocket.UserForRoom.get(room);
         if (rooms != null){
             rooms.forEach(user -> {
                 if (user.getNickname().equals(nick)){
-                    result.put("msg",true);
+                    result.put("code",1);
+                    result.put("msg","昵称已存在，请重新输入");
                     logger.debug("有重复");
                 }
             });
+            String password = MyWebSocket.PwdForRoom.get(room);
+            if (StrUtil.isNotEmpty(password) && !(pwd.equals(password))){
+                result.put("code",2);
+                result.put("msg","密码错误，请重新输入");
+            }else {
+                result.put("code",3);
+                result.put("msg","房间无密码");
+            }
         }
         return result;
     }
@@ -135,6 +145,29 @@ public class SocketController {
         result.put("rooms",rooms);
         return result;
     }
+
+    /**
+     * 判断昵称在某个房间中是否已存在
+     * @param room 房间号
+     * @param pwd 密码
+     * @return
+     */
+//    @RequestMapping("/judgePwd")
+//    public Map<String,Object> judgePwd(String room, String pwd){
+//        Map<String,Object> result = new HashMap<>();
+//        result.put("msg",false);
+//        CopyOnWriteArraySet<User> rooms = MyWebSocket.UserForRoom.get(room);
+//        if (rooms != null){
+//            rooms.forEach(user -> {
+//                if (user.getNickname().equals(nick)){
+//                    result.put("msg",true);
+//                    logger.debug("有重复");
+//                }
+//            });
+//        }
+//        return result;
+//    }
+
 
 
 }

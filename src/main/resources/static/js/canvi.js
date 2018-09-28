@@ -118,31 +118,31 @@ var Canvi = '';
          */
 
         function closeCanvi() {
-            alert("任意位置单击鼠标右键可再次打开本页面");
-            if (options.isDebug) console.log('%c %s', 'color: #e01a51; font-style: italic;', 'CANVI: Close is running...');
-
-            if (isOpen === true) {
-                // Trigger Custom Event
-                _triggerCanviEvent('canvi.before-close');
-
-                overlay.classList.add('canvi-animate-out');
-
-                // Remove open classes
-                content.style.transform = 'translateX(0)';
-                body.classList.remove('is-canvi-open');
-                navbar.classList.remove('is-canvi-open');
-
-                if (options.pushContent === true) {
-                    content.addEventListener(transitionEvent, _transitionCloseEnd);
-                } else {
-                    navbar.addEventListener(transitionEvent, _transitionCloseEnd);
-                }
-
-                navbar.setAttribute('inert', '');
-                navbar.setAttribute('aria-hidden', 'true');
-
-                isOpen = false;
-            }
+            // alert("任意位置单击鼠标右键可再次打开本页面");
+            // if (options.isDebug) console.log('%c %s', 'color: #e01a51; font-style: italic;', 'CANVI: Close is running...');
+            //
+            // if (isOpen === true) {
+            //     // Trigger Custom Event
+            //     _triggerCanviEvent('canvi.before-close');
+            //
+            //     overlay.classList.add('canvi-animate-out');
+            //
+            //     // Remove open classes
+            //     content.style.transform = 'translateX(0)';
+            //     body.classList.remove('is-canvi-open');
+            //     navbar.classList.remove('is-canvi-open');
+            //
+            //     if (options.pushContent === true) {
+            //         content.addEventListener(transitionEvent, _transitionCloseEnd);
+            //     } else {
+            //         navbar.addEventListener(transitionEvent, _transitionCloseEnd);
+            //     }
+            //
+            //     navbar.setAttribute('inert', '');
+            //     navbar.setAttribute('aria-hidden', 'true');
+            //
+            //     isOpen = false;
+            // }
         }
 
         /*
