@@ -78,13 +78,18 @@ public class SocketController {
                     logger.debug("有重复");
                 }
             });
+            if ((Integer)result.get("code") != 0){
+                return result;
+            }
             String password = MyWebSocket.PwdForRoom.get(room);
             if (StrUtil.isNotEmpty(password) && !(pwd.equals(password))){
                 result.put("code",2);
                 result.put("msg","密码错误，请重新输入");
+                return result;
             }else {
                 result.put("code",3);
                 result.put("msg","房间无密码");
+                return result;
             }
         }
         return result;
