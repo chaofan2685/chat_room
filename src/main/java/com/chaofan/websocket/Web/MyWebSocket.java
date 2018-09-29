@@ -80,6 +80,7 @@ public class MyWebSocket {
             if (users.size() == 0){
                 String room = RoomForUser.get(session.getId());
                 UserForRoom.remove(room);
+                PwdForRoom.remove(room);
             }
             RoomForUser.remove(session.getId());
         }
