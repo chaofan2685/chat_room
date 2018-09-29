@@ -170,7 +170,7 @@
                 <span id="activeRoom" class="canvi-user-info__title">房间号:</span>
                 <!--<a id="activeUser" class="canvi-user-info__meta">开心畅聊每一天😘</a><br>-->
                 <a id="activePwd" class="canvi-user-info__meta"></a>
-                <div class="canvi-user-info__close" onclick="silence()">
+                <div onmouseover="layer.tips('点击可关闭消息通知',this)" class="canvi-user-info__close" onclick="silence()">
                     <img id="mute" src="./icon/unmute.png" style="width: 25px;">
                 </div>
             </div>
@@ -196,13 +196,13 @@
         <div id="message" style="display: none">
 
         </div>
-        <div id="footer" class="footer" style="bottom: -100px">
+        <div id="footer" class="footer" style="bottom: -100px" onclick="oneTips()">
             <div>
                 <input id="text" placeholder="请输入聊天内容，回车键发送消息！" class="botui-actions-text-input">
             </div>
         </div>
         <form id="imageUp" style="bottom: -100px">
-            <a href='javascript:void(0);' class="blueButton">斗图</a>
+            <a href='javascript:void(0);' class="blueButton">发图</a>
             <input type="file" class="myFileUpload" name="fileName" id="image" onchange="sendImg()"/>
         </form>
     </div>
@@ -216,12 +216,12 @@
             </div>
             <div class="login-input">
                 <label>房间：</label>
-                <input type="text" placeholder="可选择房间" onfocus="allRoom()"  id="roomname" class="list-input" list="rooms"/>
+                <input type="text" placeholder="请输入房间" onfocus="allRoom(this)"  id="roomname" class="list-input" list="rooms"/>
                 <datalist id="rooms"></datalist>
             </div>
             <div class="login-input" style="height: 0px">
                 <label>密码：</label>
-                <input type="password" placeholder="密码可留空" onfocus="allRoom()"  id="password" class="list-input" list="rooms"/>
+                <input type="password" placeholder="密码可留空" id="password" class="list-input" list="rooms"/>
             </div>
         </div>
         <div class="login-button" onclick="editNick()"><a style="text-decoration:none;color:#ffffff;" href="javascript:void(0);" id="login-button-submit">进入</a></div>
@@ -239,6 +239,8 @@
     var host = location.host;
     var focus = false;
     var mute = 2;
+    var oneTip = 0;
+    var shieldMap = new Map();
 
     window.onfocus = function() {
         focus = false;
@@ -260,13 +262,13 @@
         websocket = new WebSocket("ws://"+host+"/websocket");
     }
     else{
-        alert('Not support websocket')
+        layer.msg('Not support websocket',{anim: 6})
     }
 
     //连接发生错误的回调方法
     websocket.onerror = function(){
         // setMessageInnerHTML("系统","error");
-        alert("与服务器连接发生错误，点击确定将重新进入！");
+        layer.msg("与服务器连接发生错误，请刷新页面重新进入！",{anim: 6});
     };
 
     //连接成功建立的回调方法
@@ -286,7 +288,8 @@
         switch(data.type){
             case 'init':
                 getOnlion(document.getElementById('room').value);
-                setMessageInnerHTML(nick,msg);
+                // setMessageInnerHTML(nick,msg);
+                layer.msg(msg);
                 break;
             case 'msg':
                 setMessageInnerHTML(nick,msg);
@@ -304,7 +307,11 @@
 
     //连接关闭的回调方法
     websocket.onclose = function(){
-        setMessageInnerHTML("系统","已与服务器断开连接！");
+        // setMessageInnerHTML("系统","已与服务器断开连接！");
+        layer.alert('已与服务器断开连接！', {icon: 2});
+        $("#footer").animate({bottom:'-100px'},400);
+        $("#imageUp").animate({bottom:'-100px'},500);
+
     }
 
     //监听窗口关闭事件，当窗口关闭时，主动去关闭websocket连接，防止连接还没断开就关闭窗口，server端会抛异常。
@@ -318,15 +325,27 @@
     }
 
     //监听鼠标右键点击事件，模拟点击‘#btn’的操作
-    // document.onmousedown = function(e) {
-    //     switch(e.button) {
-    //         case 2:
-    //             $('#btn').trigger("click");
-    //             break;
-    //         default:
-    //             break;
-    //     }
-    // }
+    document.onmousedown = function(e) {
+        switch(e.button) {
+            case 2:
+                var topValue = $("#window").css('top');
+                var topPx = topValue.substring(0,topValue.length-2);
+                if (topPx < 0){
+                    layer.msg('是否清空屏幕？', {
+                        anim: 6,
+                        time: 0 //不自动关闭
+                        ,btn: ['确定', '取消']
+                        ,yes: function(index){
+                            layer.close(index);
+                            $("#message").empty();
+                        }
+                    });
+                }
+                break;
+            default:
+                break;
+        }
+    }
 
     //将消息显示在网页上
     function setMessageInnerHTML(nick,msg){
@@ -361,6 +380,13 @@
     function closeWebSocket(){
         websocket.close();
     }
+    
+    function oneTips() {
+        if (oneTip == 0){
+            layer.alert("感谢您尝试这个简陋的聊天室，说两个隐藏功能：<br>1.点击成员左边的小圆形可以屏蔽这个人，使发出去的消息不会被他收到<br>2.任意位置点击鼠标右键可以清空屏幕。");
+            oneTip+=1;
+        }
+    }
 
     //发送消息
     function send(){
@@ -370,6 +396,11 @@
             var map = new Map();
             map.set("type","msg");
             map.set("msg",msg);
+            var shiels = new Array();
+            shieldMap.forEach(function (value) {
+                shiels.push(value);
+            })
+            map.set("shiels",shiels);
             var map2json=Map2Json(map);
             websocket.send(map2json);
             document.getElementById('text').value = null;
@@ -402,12 +433,19 @@
         $("#footer").animate({bottom:'10px'},400);
         $("#imageUp").animate({bottom:'20px'},500);
         $("#message").show();
+        layer.msg("成功加入房间！");
     }
 
     //监听回车键，发送消息
     $(document).keydown(function(e) {
         if (e.keyCode == 13) {
-            send();
+            var topValue = $("#window").css('top');
+            var topPx = topValue.substring(0,topValue.length-2);
+            if (topPx > 0){
+                editNick();
+            }else {
+                send();
+            }
         }
     });
 
@@ -425,7 +463,7 @@
         document.getElementById('nick').value = nickname;
         document.getElementById('room').value = roomname;
         if (nickname == "" || roomname == ""){
-            alert("房间号和昵称不能为空！");
+            layer.msg("房间号和昵称不能为空！",{anim: 6});
             return;
         }
         $.ajax({
@@ -436,18 +474,18 @@
             success: function(data){
                 //房间存在但是昵称重复
                 if (data.code == 1){
-                    alert(data.msg);
+                    layer.msg(data.msg,{anim: 6});
                     document.getElementById('nickname').value = '';
                     return;
                 }else if (data.code == 2){ //房间存在但是密码错误
                     if (password == null || password == ""){
                         if ($(".login").css("height") == "300px"){
-                            alert("请输入密码");
+                            layer.msg("请输入密码",{anim: 6});
                         }else {
                             ejectPwd("该房间需要密码");
                         }
                     }else {
-                        alert(data.msg);
+                        layer.msg(data.msg,{anim: 6});
                         document.getElementById('password').value = "";
                     }
                     return;
@@ -484,21 +522,48 @@
                 if (data.onlineNum > 0){
                     var onlineUsera = data.onlineUsera;
                     $("#cebian").html("");
-                    onlineUsera.forEach(function (nick) {
+                    onlineUsera.forEach(function (user) {
+                        var color = "#00ce46";
+                        if (shieldMap.has("user-"+user.id)){
+                            color = "#FF3A43"
+                        }
+                        if (user.nick == $("#nickname").val()){
+                            color = "#fff600"
+                        }
                         var html = '<li>\n' +
                             '                <a class="canvi-navigation__item">\n' +
-                            '                    <span class="canvi-navigation__icon-wrapper" style="background: #00ce46;">\n' +
+                            '                    <span onmouseenter="shieldTips()" id="user-'+user.id+'" class="canvi-navigation__icon-wrapper" onclick="shield(this)" style="background: '+color+';">\n' +
                             '                        <span class="canvi-navigation__icon icon-iconmonstr-code-13"></span>\n' +
                             '                    </span>\n' +
-                            '                    <span class="canvi-navigation__text">'+nick+'</span>\n' +
+                            '                    <span class="canvi-navigation__text">'+user.nick+'</span>\n' +
                             '                </a>\n' +
                             '            </li>';
-
                         $("#cebian").append(html);
                     });
                 }
             }
         });
+    }
+    
+    function shieldTips() {
+        layer.tips("点击此处可以不让此人接收您的消息，但您可以接收他的🙃",document.getElementById('cebian'));
+    }
+
+    // 屏蔽某个成员不让他接收我的消息
+    function shield(obj) {
+        if ($(obj).next().text() != $("#nickname").val()){
+            var userId = obj.id.substring(5)
+            if (shieldMap.has(obj.id)){
+                shieldMap.delete(obj.id);
+                layer.msg('该用户将会重新接收到您的消息😁');
+            }else {
+                shieldMap.set(obj.id,userId);
+                layer.msg('该用户将不会接收到您的消息了😉');
+            }
+            getOnlion(document.getElementById('room').value);
+        }else {
+            layer.msg('这个是您自己呦，点了也没用😂');
+        }
     }
 
     //播放提示音
@@ -573,12 +638,17 @@
                         var map = new Map();
                         map.set("type","img");
                         map.set("msg",url);
+                        var shiels = new Array();
+                        shieldMap.forEach(function (value) {
+                            shiels.push(value);
+                        })
+                        map.set("shiels",shiels);
                         var map2json=Map2Json(map);
                         websocket.send(map2json);
                     }
                 },
                 error: function (data) {
-                    alert("失败");
+                    layer.msg("失败",{anim: 6});
                 }
             });
         }
@@ -600,13 +670,13 @@
             .toLowerCase();
 
         if (!checkFileExt(fileExt)) {
-            alert("您上传的文件不是图片,请重新上传！");
+            layer.msg("您上传的文件不是图片,请重新上传！",{anim: 6});
             img.value = "";
             return;
         }
         if (img.files && img.files[0]) {
             if ((img.files[0].size / 1024).toFixed(0) > 1024){
-                alert("图片不能超过1M,请重新选择");
+                layer.msg("图片不能超过1M,请重新选择",{anim: 6});
                 img.value = "";
                 return;
             }
@@ -616,9 +686,9 @@
             try {
                 var fso = new ActiveXObject("Scripting.FileSystemObject");
             } catch (e) {
-                alert('如果你用的是ie8以下 请将安全级别调低！');
+                layer.msg('如果你用的是ie8以下 请将安全级别调低！',{anim: 6});
             }
-            alert("文件大小为：" + (fso.GetFile(url).size / 1024).toFixed(0) + "kb");
+            layer.msg("文件大小为：" + (fso.GetFile(url).size / 1024).toFixed(0) + "kb",{anim: 6});
         }
     }
 
@@ -659,7 +729,7 @@
 
         // 先检查浏览器是否支持
         if (!("Notification" in window)) {
-            alert("您的浏览器不支持桌面通知");
+            layer.msg("您的浏览器不支持桌面通知",{anim: 6});
         }
 
         // 检查用户是否同意接受通知
@@ -693,13 +763,13 @@
         $(".login").animate({height:'250px'},200);
         $(".login-input-content").animate({'margin-top':'0px'},200);
         if (!("Notification" in window)) {
-            alert("您的浏览器不支持桌面通知");
+            layer.msg("您的浏览器不支持桌面通知",{anim: 6});
         }else{
             Notification.requestPermission();
         }
     }
     
-    function allRoom(){
+    function allRoom(obj){
         $.ajax({
             type: "POST",
             url: "/ws/allRoom",
@@ -707,6 +777,9 @@
             success: function(data){
                 var rooms = data.rooms;
                 $("#rooms").empty();
+                if (rooms.length > 0){
+                    layer.tips("双击或点这里可选择已存在的房间",obj);
+                }
                 rooms.forEach(function (room) {
                     var html = '<option value="'+room+'">';
                     $("#rooms").append(html);
@@ -720,8 +793,10 @@
         mute++;
         if (mute%2 == 0){
             $('#mute').attr("src","./icon/unmute.png");
+            layer.msg("消息通知已开启");
         }else {
             $('#mute').attr("src","./icon/mute.png");
+            layer.msg("消息通知已关闭");
         }
     }
 

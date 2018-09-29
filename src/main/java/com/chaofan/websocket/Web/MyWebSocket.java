@@ -95,6 +95,7 @@ public class MyWebSocket {
         Map<String,String> map = new Gson().fromJson(message, new TypeToken<HashMap<String,String>>(){}.getType());
         Map<String,String> result = new HashMap<>();
         User user = null;
+        String shiels = map.containsKey("shiels")?map.get("shiels").toString():null;
         switch (map.get("type")){
             case "msg" :
                 user = getUser(session);
@@ -124,9 +125,8 @@ public class MyWebSocket {
                     result.put("type","init");
                     result.put("msg",nick+"成功加入房间");
                     result.put("sendUser","系统");
-                    sendMessagesAll(getUsers(session),gson.toJson(result));
                 }
-                return;
+                break;
             case "img":
                 user = getUser(session);
                 result.put("type","img");
@@ -134,7 +134,11 @@ public class MyWebSocket {
                 result.put("sendUser",user.getNickname());
                 break;
         }
-        sendMessagesOther(getUsers(session),gson.toJson(result));
+        if (StrUtil.isEmpty(shiels)){
+            sendMessagesOther(getUsers(session),gson.toJson(result));
+        }else {
+            sendMessagesOther(getUsers(session),gson.toJson(result),shiels);
+        }
     }
 
     /**
@@ -218,6 +222,25 @@ public class MyWebSocket {
         //群发消息
         for (User item : users) {
             if (item.getWebSocket() != this){
+                try {
+                    item.getWebSocket().sendMessage(message);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    /**
+     * 给某个房间除自己外发送消息
+     * @param users
+     * @param message
+     */
+    private void sendMessagesOther(CopyOnWriteArraySet<User> users, String message, String shiel){
+        List<String> shiels = Arrays.asList(shiel.split(","));
+        //群发消息
+        for (User item : users) {
+            if (item.getWebSocket() != this && !shiels.contains(item.getId())){
                 try {
                     item.getWebSocket().sendMessage(message);
                 } catch (IOException e) {

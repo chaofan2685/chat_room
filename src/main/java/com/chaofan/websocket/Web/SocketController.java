@@ -47,11 +47,17 @@ public class SocketController {
     public Map<String,Object> online(String room){
         Map<String,Object> result = new HashMap<>();
         CopyOnWriteArraySet<User> rooms = MyWebSocket.UserForRoom.get(room);
-        List<String> nicks = new ArrayList<>();
+//        List<String> nicks = new ArrayList<>();
+        List<Map<String,String>> users = new ArrayList<>();
         if (rooms != null){
-            rooms.forEach(user -> nicks.add(user.getNickname()));
+            rooms.forEach(user -> {
+                Map<String,String> map = new HashMap<>();
+                map.put("nick",user.getNickname());
+                map.put("id",user.getId());
+                users.add(map);
+            });
             result.put("onlineNum",rooms.size());
-            result.put("onlineUsera",nicks);
+            result.put("onlineUsera",users);
         }else {
             result.put("onlineNum",0);
             result.put("onlineUsera",null);
@@ -60,9 +66,10 @@ public class SocketController {
     }
 
     /**
-     * 判断昵称在某个房间中是否已存在
+     * 判断昵称在某个房间中是否已存在，房间是否有密码，如果有，用户输入的密码又是否正确
      * @param room 房间号
      * @param nick 昵称
+     * @param pwd 密码
      * @return
      */
     @RequestMapping("/judgeNick")
@@ -150,29 +157,5 @@ public class SocketController {
         result.put("rooms",rooms);
         return result;
     }
-
-    /**
-     * 判断昵称在某个房间中是否已存在
-     * @param room 房间号
-     * @param pwd 密码
-     * @return
-     */
-//    @RequestMapping("/judgePwd")
-//    public Map<String,Object> judgePwd(String room, String pwd){
-//        Map<String,Object> result = new HashMap<>();
-//        result.put("msg",false);
-//        CopyOnWriteArraySet<User> rooms = MyWebSocket.UserForRoom.get(room);
-//        if (rooms != null){
-//            rooms.forEach(user -> {
-//                if (user.getNickname().equals(nick)){
-//                    result.put("msg",true);
-//                    logger.debug("有重复");
-//                }
-//            });
-//        }
-//        return result;
-//    }
-
-
 
 }
