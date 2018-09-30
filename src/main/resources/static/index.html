@@ -132,9 +132,6 @@
         // setMessageInnerHTML("系统","成功进入大厅！");
     }
 
-
-
-
     // 延迟Tips
     function delayTips(tips,obj,style){
         timer = setTimeout(messagebox,650,tips,obj,style)
@@ -149,12 +146,6 @@
     function messagebox(tips,obj,style){
         layer.tips(tips,obj,style);
     }
-
-
-
-
-
-
 
     //接收到消息的回调方法
     websocket.onmessage = function(event){
