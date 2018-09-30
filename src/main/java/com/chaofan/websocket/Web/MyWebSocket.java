@@ -53,6 +53,7 @@ public class MyWebSocket {
         result.put("type","bing");
         result.put("msg",BingImages.get(random.nextInt(BingImages.size())));
         result.put("sendUser","系统");
+        result.put("id",session.getId());
         this.sendMessage(gson.toJson(result));
     }
 

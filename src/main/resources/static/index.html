@@ -3,157 +3,8 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <title>聊天室</title>
-    <style type="text/css">
-        #aside{
-            background: #4d4d4d;
-        }
-        img{
-            width: 100%;
-        }
-        #message{
-            width: 77%;
-            margin: auto;
-            margin-bottom: 100px;
-            margin-left: 22%;
-        }
-        .botui-message-left{
-            min-height: 45px;
-            margin: 10px 0;
-        }
-        .botui-message-right{
-            min-height: 45px;
-            margin: 10px 0;
-            text-align: right;
-        }
-        .botui-message-content{
-            line-height: 1.5;
-            padding: 10px 20px;
-            border-radius: 15px;
-            color: #595a5a;
-            background-color: #ffffff;
-            width: auto;
-            max-width: 80%;
-            display: inline-block;
-            margin-left: -40px;
-        }
-        .botui-message-content-img{
-            line-height: 1.5;
-            padding: 10px 20px;
-            border-radius: 15px;
-            color: #595a5a;
-            backgroimgund-color: #ebebeb;
-            width: auto;
-            max-width: 20%;
-            display: inline-block;
-            margin-left: -40px;
-        }
-        .botui-message-content2{
-            line-height: 1.5;
-            padding: 10px 20px;
-            border-radius: 15px;
-            color: #f7f8f8;
-            background-color: #00a5ff;
-            width: auto;
-            max-width: 80%;
-            display: inline-block;
-            text-align: start;
-            margin-right: -40px;
-            /*float: right;*/
-        }
-        .botui-message-content2-img{
-            line-height: 1.5;
-            padding: 10px 20px;
-            border-radius: 15px;
-            color: #f7f8f8;
-            width: auto;
-            max-width: 20%;
-            display: inline-block;
-            text-align: start;
-            margin-right: -40px;
-            /*float: right;*/
-        }
-        .footer{
-            width: 77%;
-            position: fixed;
-            bottom: 10px;
-            left: 22%;
-            z-index: 150;
-            /*height: 64px;*/
-            /*width: 100%;*/
-            padding:15px;
-            font-size: 16px;
-            color: #535886;
-            background: rgba(255, 255, 255, 0.90);
-            border-radius: 40px;
-        }
-        .botui-actions-text-input {
-            border: 0;
-            outline: 0;
-            border-radius: 0;
-            padding: 5px 7px;
-            font-family: "Open Sans",sans-serif;
-            background-color: transparent;
-            color: #595a5a;
-            width: 90%;
-        }
-        .blueButton
-        {
-            position: absolute;
-            display: block;
-            width: 80px;
-            height: 40px;
-            background-color: #00b3ee;
-            color: #fff;
-            text-decoration: none;
-            text-align: center;
-            font:normal normal normal 16px/40px 'Microsoft YaHei';
-            cursor: pointer;
-            border-radius: 40px;
-        }
-        .blueButton:hover
-        {
-            text-decoration: none;
-        }
-        /*自定义上传,位置大小都和a完全一样,而且完全透明*/
-        .myFileUpload
-        {
-            display: block;
-            width: 80px;
-            height: 40px;
-            opacity: 0;
-        }
-        #imageUp{
-            position: fixed;
-            bottom: 20px;
-            right: 2%;
-            z-index: 151;
-        }
-        .sendUser{
-            margin-top: 15px;
-        }
-        .list-input::-webkit-input-placeholder{
-            color: #777;
-            font-size: 14px;
-        }
-        /* Mozilla Firefox 4 to 18 */
-        .list-input::-moz-placeholder {
-            color: #777;
-            font-size: 14px;
-        }
-        /* Mozilla Firefox 19+ */
-        .list-input::-moz-placeholder {
-            color: #777;
-            font-size: 14px;
-        }
-        /* Internet Explorer 10+ */
-        .list-input:-ms-input-placeholder {
-            color: #777;
-            font-size: 14px;
-        }
-    </style>
     <script src="./js/jquery.min.js"></script>
     <script src="./js/canvi.js"></script>
-    <script src="./js/jquery.easyui.min.js"></script>
     <script src="./js/layui.all.js"></script>
     <link rel="stylesheet" type="text/css" href="./css/demo.css" />
     <link rel="stylesheet" type="text/css" href="./css/normalize.css" />
@@ -168,11 +19,11 @@
         <div class="canvi-user-info" style="padding-top: 20px;padding-bottom: 20px;">
             <div class="canvi-user-info__data">
                 <span id="activeRoom" class="canvi-user-info__title">房间号:</span>
-                <!--<a id="activeUser" class="canvi-user-info__meta">开心畅聊每一天😘</a><br>-->
+                <a id="activeUser" class="canvi-user-info__meta">开心畅聊每一天😘</a><br>
                 <a id="activePwd" class="canvi-user-info__meta"></a>
-                <div onmouseover="layer.tips('点击可关闭消息通知',this)" class="canvi-user-info__close" onclick="silence()">
-                    <img id="mute" src="./icon/unmute.png" style="width: 25px;">
-                </div>
+            </div>
+            <div onmouseover="delayTips('点击可关闭消息通知',this)" onmouseout="stopTimer()" class="canvi-user-info__close" onclick="silence()">
+                <img id="mute" src="./icon/unmute.png" style="width: 25px;">
             </div>
         </div>
         <ul id="cebian" class="canvi-navigation">
@@ -192,12 +43,17 @@
                 <span>房间：</span>
                 <input id="room" type="text">
             </div>
+            <div>
+                <span>用户ID：</span>
+                <input id="userId" type="text">
+            </div>
         </div>
         <div id="message" style="display: none">
 
         </div>
         <div id="footer" class="footer" style="bottom: -100px" onclick="oneTips()">
             <div>
+                <span onmouseover="delayTips('以后会开发表情功能',this,{tips:[1]})" onmouseout="stopTimer()">😁</span>
                 <input id="text" placeholder="请输入聊天内容，回车键发送消息！" class="botui-actions-text-input">
             </div>
         </div>
@@ -241,6 +97,7 @@
     var mute = 2;
     var oneTip = 0;
     var shieldMap = new Map();
+    var timer
 
     window.onfocus = function() {
         focus = false;
@@ -267,7 +124,6 @@
 
     //连接发生错误的回调方法
     websocket.onerror = function(){
-        // setMessageInnerHTML("系统","error");
         layer.msg("与服务器连接发生错误，请刷新页面重新进入！",{anim: 6});
     };
 
@@ -275,6 +131,30 @@
     websocket.onopen = function(event){
         // setMessageInnerHTML("系统","成功进入大厅！");
     }
+
+
+
+
+    // 延迟Tips
+    function delayTips(tips,obj,style){
+        timer = setTimeout(messagebox,650,tips,obj,style)
+    }
+
+    function stopTimer(){
+        if(timer != null){
+            clearTimeout(timer)
+        }
+    }
+
+    function messagebox(tips,obj,style){
+        layer.tips(tips,obj,style);
+    }
+
+
+
+
+
+
 
     //接收到消息的回调方法
     websocket.onmessage = function(event){
@@ -288,7 +168,6 @@
         switch(data.type){
             case 'init':
                 getOnlion(document.getElementById('room').value);
-                // setMessageInnerHTML(nick,msg);
                 layer.msg(msg);
                 break;
             case 'msg':
@@ -298,6 +177,7 @@
                 setImgInnerHTML(nick,msg);
                 break;
             case 'bing':
+                document.getElementById('userId').value = data.id;
                 $('body').css("background-image","url("+msg+")");
                 break;
             default:
@@ -307,7 +187,6 @@
 
     //连接关闭的回调方法
     websocket.onclose = function(){
-        // setMessageInnerHTML("系统","已与服务器断开连接！");
         layer.alert('已与服务器断开连接！', {icon: 2});
         $("#footer").animate({bottom:'-100px'},400);
         $("#imageUp").animate({bottom:'-100px'},500);
@@ -383,7 +262,10 @@
     
     function oneTips() {
         if (oneTip == 0){
-            layer.alert("感谢您尝试这个简陋的聊天室，说两个隐藏功能：<br>1.点击成员左边的小圆形可以屏蔽这个人，使发出去的消息不会被他收到<br>2.任意位置点击鼠标右键可以清空屏幕。");
+            layer.alert("感谢您尝试这个简陋的聊天室，说几个隐藏功能：<br>" +
+                        "1.点击成员左边的小圆形可以屏蔽这个人，使发出去的消息不会被他收到，但您仍然可以收到他的消息<br>" +
+                        "2.任意位置点击鼠标右键可以清空屏幕<br>" +
+                        "3.当聊天页的标签或是当前浏览器不在前台时，会有桌面通知和提示音通知，可以点击左上角的小喇叭进行关闭");
             oneTip+=1;
         }
     }
@@ -419,8 +301,8 @@
         var message = Map2Json(map);
         websocket.send(message);
         document.getElementById('text').value = null;
-        // document.getElementById('activeUser').innerText = '昵称：'+nick;
         document.getElementById('activeRoom').innerText = '房间：'+room;
+        document.getElementById('activeUser').innerText = '昵称：'+nick;
         if (pwd != null && pwd != ""){
             document.getElementById('activePwd').innerText = '密码：'+pwd;
         }else {
@@ -527,32 +409,28 @@
                         if (shieldMap.has("user-"+user.id)){
                             color = "#FF3A43"
                         }
-                        if (user.nick == $("#nickname").val()){
-                            color = "#fff600"
+                        if (user.id != $("#userId").val()){
+                            // color = "#fff600"
+                            var html = '<li>\n' +
+                                '                <a class="canvi-navigation__item">\n' +
+                                '                    <span onmouseover="delayTips(\'点击此处可以不让此人接收您的消息，但您可以接收他的🙃\',document.getElementById(\'cebian\'))" onmouseout="stopTimer()" id="user-'+user.id+'" class="canvi-navigation__icon-wrapper" onclick="shield(this)" style="background: '+color+';">\n' +
+                                '                        <span class="canvi-navigation__icon icon-iconmonstr-code-13"></span>\n' +
+                                '                    </span>\n' +
+                                '                    <span class="canvi-navigation__text">'+user.nick+'</span>\n' +
+                                '                </a>\n' +
+                                '            </li>';
+                            $("#cebian").append(html);
                         }
-                        var html = '<li>\n' +
-                            '                <a class="canvi-navigation__item">\n' +
-                            '                    <span onmouseenter="shieldTips()" id="user-'+user.id+'" class="canvi-navigation__icon-wrapper" onclick="shield(this)" style="background: '+color+';">\n' +
-                            '                        <span class="canvi-navigation__icon icon-iconmonstr-code-13"></span>\n' +
-                            '                    </span>\n' +
-                            '                    <span class="canvi-navigation__text">'+user.nick+'</span>\n' +
-                            '                </a>\n' +
-                            '            </li>';
-                        $("#cebian").append(html);
                     });
                 }
             }
         });
     }
-    
-    function shieldTips() {
-        layer.tips("点击此处可以不让此人接收您的消息，但您可以接收他的🙃",document.getElementById('cebian'));
-    }
 
     // 屏蔽某个成员不让他接收我的消息
     function shield(obj) {
-        if ($(obj).next().text() != $("#nickname").val()){
-            var userId = obj.id.substring(5)
+        var userId = obj.id.substring(5)
+        if (userId != $("#userId").val()){
             if (shieldMap.has(obj.id)){
                 shieldMap.delete(obj.id);
                 layer.msg('该用户将会重新接收到您的消息😁');
