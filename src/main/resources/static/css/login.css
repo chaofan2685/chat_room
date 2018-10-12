@@ -88,7 +88,8 @@ img{
 #message{
     width: 77%;
     margin: auto;
-    margin-bottom: 100px;
+    /*margin-bottom: 100px;*/
+    margin-bottom: 140px;
     margin-left: 22%;
 }
 .botui-message-left{
@@ -148,19 +149,24 @@ img{
     /*float: right;*/
 }
 .footer{
-    width: 77%;
+    /*width: 77%;*/
+    width: 79%;
     position: fixed;
-    bottom: 10px;
-    left: 22%;
+    /*bottom: 10px;*/
+    bottom: -140px;
+    /*left: 22%;*/
+    left: 21%;
     z-index: 150;
     /*height: 64px;*/
     /*width: 100%;*/
-    padding:15px;
+    /*padding:15px;*/
     font-size: 16px;
     color: #535886;
     background: rgba(255, 255, 255, 0.90);
-    border-radius: 40px;
+    /*border-radius: 40px;*/
+    min-height: 120px;
 }
+
 .botui-actions-text-input {
     border: 0;
     outline: 0;
@@ -224,4 +230,15 @@ img{
 .list-input:-ms-input-placeholder {
     color: #777;
     font-size: 14px;
+}
+#text{
+    min-height: 100px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.emoji_icon{
+    max-width: 35px;
 }

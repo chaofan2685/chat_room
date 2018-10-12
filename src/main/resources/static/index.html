@@ -12,6 +12,22 @@
     <link rel="stylesheet" type="text/css" href="./css/login.css" />
     <link rel="stylesheet" type="text/css" href="./css/easyui.css" />
     <link rel="stylesheet" type="text/css" href="./css/layui.css" />
+
+    <style type="text/css">
+    </style>
+
+    <!--the css for jquery.mCustomScrollbar-->
+    <link rel="stylesheet" href="./css/jquery.mCustomScrollbar.min.css"/>
+    <!--the css for this plugin-->
+    <link rel="stylesheet" href="./css/jquery.emoji.css"/>
+
+    <!--(Optional) the js for jquery.mCustomScrollbar's addon-->
+    <script src="./js/jquery.mousewheel-3.0.6.min.js"></script>
+    <!--the js for jquery.mCustomScrollbar-->
+    <script src="./js/jquery.mCustomScrollbar.min.js"></script>
+    <!--the js for this plugin-->
+    <script src="./js/jquery.emoji.js"></script>
+
 </head>
 
 <body onload="checkNotification()" style="background-color: rgb(230, 230, 230)">
@@ -51,13 +67,22 @@
         <div id="message" style="display: none">
 
         </div>
-        <div id="footer" class="footer" style="bottom: -100px" onclick="oneTips()">
-            <div>
-                <span onmouseover="delayTips('以后会开发表情功能',this,{tips:[1]})" onmouseout="stopTimer()">😁</span>
-                <input id="text" placeholder="请输入聊天内容，回车键发送消息！" class="botui-actions-text-input">
+        <!--<div id="footer" class="footer" style="bottom: -100px" >-->
+            <!--<div>-->
+                <!--<span onmouseover="delayTips('以后会开发表情功能',this,{tips:[1]})" onmouseout="stopTimer()">😁</span>-->
+                <!--<textarea id="text" placeholder="请输入聊天内容，回车键发送消息！" class="botui-actions-text-input"></textarea>-->
+            <!--</div>-->
+        <!--</div>-->
+
+        <div id="footer" class="footer">
+            <div id="toolbar" style="padding: 5px;">
+                <img id="emoji" src="icon/emoji.png" style="width: 26px;margin-left: 10px">
+                <img id="sendImg" onclick="moniSendImg()" src="icon/picture.png" style="width: 23px;margin-left: 5px">
             </div>
+            <div id="text" contenteditable="true"></div>
         </div>
-        <form id="imageUp" style="bottom: -100px">
+
+        <form id="imageUp" style="display: none">
             <a href='javascript:void(0);' class="blueButton">发图</a>
             <input type="file" class="myFileUpload" name="fileName" id="image" onchange="sendImg()"/>
         </form>
@@ -95,7 +120,6 @@
     var host = location.host;
     var focus = false;
     var mute = 2;
-    var oneTip = 0;
     var shieldMap = new Map();
     var timer
 
@@ -134,12 +158,13 @@
 
     // 延迟Tips
     function delayTips(tips,obj,style){
-        timer = setTimeout(messagebox,650,tips,obj,style)
+        timer = setTimeout(messagebox,1000,tips,obj,style)
     }
 
     function stopTimer(){
         if(timer != null){
-            clearTimeout(timer)
+            clearTimeout(timer);
+            layer.closeAll('tips');
         }
     }
 
@@ -180,7 +205,7 @@
     websocket.onclose = function(){
         layer.alert('已与服务器断开连接！', {icon: 2});
         $("#footer").animate({bottom:'-100px'},400);
-        $("#imageUp").animate({bottom:'-100px'},500);
+        // $("#imageUp").animate({bottom:'-100px'},500);
 
     }
 
@@ -245,27 +270,33 @@
         scrollToEnd();
     }
 
-
+    function moniSendImg() {
+        document.getElementById("image").click();
+    }
+    
     //关闭连接
     function closeWebSocket(){
         websocket.close();
     }
     
     function oneTips() {
-        if (oneTip == 0){
-            layer.alert("感谢您尝试这个简陋的聊天室，说几个隐藏功能：<br>" +
-                        "1.点击成员左边的小圆形可以屏蔽这个人，使发出去的消息不会被他收到，但您仍然可以收到他的消息<br>" +
-                        "2.任意位置点击鼠标右键可以清空屏幕<br>" +
-                        "3.当聊天页的标签或是当前浏览器不在前台时，会有桌面通知和提示音通知，可以点击左上角的小喇叭进行关闭");
-            oneTip+=1;
-        }
+        layer.alert("感谢您尝试这个简陋的聊天室，说几个隐藏功能：<br>" +
+            "1.点击成员左边的小圆形可以屏蔽这个人，使发出去的消息不会被他收到，但您仍然可以收到他的消息<br>" +
+            "2.任意位置点击鼠标右键可以清空屏幕<br>" +
+            "3.当聊天页的标签或是当前浏览器不在前台时，会有桌面通知和提示音通知，可以点击左上角的小喇叭进行关闭",
+            function(index){
+                layer.close(index);
+                //因为该方法会引起较近的动画卡顿，所以让他先老实一会儿
+                setTimeout(function(){ loadEmoji(); }, 500);
+            });
     }
 
     //发送消息
     function send(){
         var nick = document.getElementById('nick').value;
-        var msg = document.getElementById('text').value;
+        var msg = document.getElementById('text').innerHTML;
         if (msg != null && msg != ""){
+            msg = msg.replace(/"/g,"'");
             var map = new Map();
             map.set("type","msg");
             map.set("msg",msg);
@@ -276,7 +307,7 @@
             map.set("shiels",shiels);
             var map2json=Map2Json(map);
             websocket.send(map2json);
-            document.getElementById('text').value = null;
+            document.getElementById('text').innerHTML = null;
             setMessageInnerHTML2(nick,msg);
         }
     }
@@ -291,7 +322,7 @@
         map.set("pwd",pwd);
         var message = Map2Json(map);
         websocket.send(message);
-        document.getElementById('text').value = null;
+        document.getElementById('text').innerHTML = null;
         document.getElementById('activeRoom').innerText = '房间：'+room;
         document.getElementById('activeUser').innerText = '昵称：'+nick;
         if (pwd != null && pwd != ""){
@@ -303,10 +334,61 @@
         getOnlion(document.getElementById('room').value);
         $('body').css("background-image","none");
         $("#window").animate({top:'-100%'},500);
-        $("#footer").animate({bottom:'10px'},400);
-        $("#imageUp").animate({bottom:'20px'},500);
+        $("#footer").animate({bottom:'0px'},400);
+        // $("#imageUp").animate({bottom:'20px'},500);
         $("#message").show();
-        layer.msg("成功加入房间！");
+        oneTips();
+    }
+
+    // 加载表情，这个方法需要一定时间，因此可能造成肉眼可见的卡顿
+    function loadEmoji() {
+        $("#text").emoji({
+            button: "#emoji",
+            showTab: true,
+            animation: 'slide',
+            icons: [{
+                name: "QQ表情",
+                path: "dist/img/qqPng/",
+                maxNum: 116,
+                file: ".png"
+
+            },{
+                name: "贴吧表情",
+                path: "dist/img/tieba/",
+                maxNum: 50,
+                file: ".jpg"
+            },{
+                name: "QQ动态表情",
+                path: "dist/img/qq/",
+                maxNum: 91,
+                file: ".gif"
+            },{
+                name: "dog",
+                path: "dist/img/dog/",
+                maxNum: 37,
+                file: ".png"
+            },{
+                name: "坏坏",
+                path: "dist/img/huai/",
+                maxNum: 189,
+                file: ".png"
+            },{
+                name: "坏坏GIF",
+                path: "dist/img/huaiGif/",
+                maxNum: 26,
+                file: ".gif"
+            },{
+                name: "微博",
+                path: "dist/img/weibo/",
+                maxNum: 93,
+                file: ".png"
+            },{
+                name: "猥琐萌",
+                path: "dist/img/xiaoren/",
+                maxNum: 186,
+                file: ".gif"
+            }]
+        });
     }
 
     //监听回车键，发送消息
@@ -318,6 +400,7 @@
                 editNick();
             }else {
                 send();
+                return false;
             }
         }
     });
