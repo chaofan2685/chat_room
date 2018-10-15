@@ -32,7 +32,7 @@
                 <a id="activeUser" class="canvi-user-info__meta">开心畅聊每一天😘</a><br>
                 <a id="activePwd" class="canvi-user-info__meta"></a>
             </div>
-            <div onmouseover="delayTips('点击可开启/关闭消息通知',this,{time: -1})" onmouseout="stopTimer()" class="canvi-user-info__close" onclick="silence()">
+            <div onmouseover="delayTips('点击可开启/关闭消息通知',this,{time: -1})" onmouseout="stopTimer()" class="canvi-user-info__close" onclick="silence(),stopTimer()">
                 <img id="mute" src="./icon/unmute.png" style="width: 25px;">
             </div>
         </div>
@@ -63,9 +63,9 @@
 
         <div id="footer" class="footer">
             <div id="toolbar" style="padding: 5px;">
-                <img id="emoji" onmouseover="delayTips('万(wu)众(ren)期(wen)待(jin)的表情包功能终于来了😁',this,{time: -1})" onmouseout="stopTimer()" src="icon/emoji.png" style="width: 26px;margin-left: 10px">
-                <img id="sendImg" onclick="moniSendImg()" onmouseover="delayTips('点击发送图片，尽情斗图吧(最大支持1M的图片)',this,{time: -1})" onmouseout="stopTimer()" src="icon/picture.png" style="width: 23px;margin-left: 5px">
-                <img id="send" onmouseover="delayTips('点击发送消息(回车也可发送消息)',this,{time: -1})" onmouseout="stopTimer()" onclick="send()" src="icon/send.png" style="width: 24px;position: absolute;right: 10px">
+                <img id="emoji" onclick="stopTimer()" onmouseover="delayTips('万(wu)众(ren)期(wen)待(jin)的表情包功能终于来了😁',this,{time: -1})" onmouseout="stopTimer()" src="icon/emoji.png" style="width: 26px;margin-left: 10px">
+                <img id="sendImg" onclick="moniSendImg(),stopTimer()" onmouseover="delayTips('点击发送图片，尽情斗图吧(最大支持1M的图片)',this,{time: -1})" onmouseout="stopTimer()" src="icon/picture.png" style="width: 23px;margin-left: 5px">
+                <img id="send" onmouseover="delayTips('点击发送消息(回车也可发送消息)',this,{time: -1})" onmouseout="stopTimer()" onclick="send(),stopTimer()" src="icon/send.png" style="width: 24px;position: absolute;right: 10px">
             </div>
             <div id="text" contenteditable="true"></div>
         </div>
@@ -146,7 +146,7 @@
 
     // 延迟Tips
     function delayTips(tips,obj,style){
-        timer = setTimeout(messagebox,1000,tips,obj,style)
+        timer = setTimeout(messagebox,900,tips,obj,style)
     }
 
     function stopTimer(){
