@@ -32,7 +32,7 @@
                 <a id="activeUser" class="canvi-user-info__meta">开心畅聊每一天😘</a><br>
                 <a id="activePwd" class="canvi-user-info__meta"></a>
             </div>
-            <div onmouseover="delayTips('点击可关闭消息通知',this)" onmouseout="stopTimer()" class="canvi-user-info__close" onclick="silence()">
+            <div onmouseover="delayTips('点击可开启/关闭消息通知',this,{time: -1})" onmouseout="stopTimer()" class="canvi-user-info__close" onclick="silence()">
                 <img id="mute" src="./icon/unmute.png" style="width: 25px;">
             </div>
         </div>
@@ -58,20 +58,14 @@
                 <input id="userId" type="text">
             </div>
         </div>
-        <div id="message" style="display: none">
 
-        </div>
-        <!--<div id="footer" class="footer" style="bottom: -100px" >-->
-            <!--<div>-->
-                <!--<span onmouseover="delayTips('以后会开发表情功能',this,{tips:[1]})" onmouseout="stopTimer()">😁</span>-->
-                <!--<textarea id="text" placeholder="请输入聊天内容，回车键发送消息！" class="botui-actions-text-input"></textarea>-->
-            <!--</div>-->
-        <!--</div>-->
+        <div id="message" style="display: none"></div>
 
         <div id="footer" class="footer">
             <div id="toolbar" style="padding: 5px;">
-                <img id="emoji" src="icon/emoji.png" style="width: 26px;margin-left: 10px">
-                <img id="sendImg" onclick="moniSendImg()" src="icon/picture.png" style="width: 23px;margin-left: 5px">
+                <img id="emoji" onmouseover="delayTips('万(wu)众(ren)期(wen)待(jin)的表情包功能终于来了😁',this,{time: -1})" onmouseout="stopTimer()" src="icon/emoji.png" style="width: 26px;margin-left: 10px">
+                <img id="sendImg" onclick="moniSendImg()" onmouseover="delayTips('点击发送图片，尽情斗图吧(最大支持1M的图片)',this,{time: -1})" onmouseout="stopTimer()" src="icon/picture.png" style="width: 23px;margin-left: 5px">
+                <img id="send" onmouseover="delayTips('点击发送消息(回车也可发送消息)',this,{time: -1})" onmouseout="stopTimer()" onclick="send()" src="icon/send.png" style="width: 24px;position: absolute;right: 10px">
             </div>
             <div id="text" contenteditable="true"></div>
         </div>
@@ -198,7 +192,7 @@
     //连接关闭的回调方法
     websocket.onclose = function(){
         layer.alert('已与服务器断开连接！', {icon: 2});
-        $("#footer").animate({bottom:'-100px'},400);
+        $("#footer").animate({bottom:'-200px'},400);
         // $("#imageUp").animate({bottom:'-100px'},500);
 
     }
@@ -303,6 +297,8 @@
             websocket.send(map2json);
             document.getElementById('text').innerHTML = null;
             setMessageInnerHTML2(nick,msg);
+        }else {
+            layer.msg("发空消息是什么意思呢？🤔",{anim: 6});
         }
     }
 
@@ -329,7 +325,6 @@
         $('body').css("background-image","none");
         $("#window").animate({top:'-100%'},500);
         $("#footer").animate({bottom:'0px'},400);
-        // $("#imageUp").animate({bottom:'20px'},500);
         $("#message").show();
         oneTips();
     }
@@ -342,20 +337,15 @@
             animation: 'slide',
             icons: [{
                 name: "QQ表情",
-                path: "dist/img/qqPng/",
-                maxNum: 116,
-                file: ".png"
+                path: "dist/img/qq/",
+                maxNum: 154,
+                file: ".gif"
 
             },{
                 name: "贴吧表情",
                 path: "dist/img/tieba/",
                 maxNum: 50,
                 file: ".jpg"
-            },{
-                name: "QQ动态表情",
-                path: "dist/img/qq/",
-                maxNum: 91,
-                file: ".gif"
             },{
                 name: "dog",
                 path: "dist/img/dog/",
@@ -478,10 +468,9 @@
                             color = "#FF3A43"
                         }
                         if (user.id != $("#userId").val()){
-                            // color = "#fff600"
                             var html = '<li>\n' +
                                 '                <a class="canvi-navigation__item">\n' +
-                                '                    <span onmouseover="delayTips(\'点击此处可以不让此人接收您的消息，但您可以接收他的🙃\',document.getElementById(\'cebian\'))" onmouseout="stopTimer()" id="user-'+user.id+'" class="canvi-navigation__icon-wrapper" onclick="shield(this)" style="background: '+color+';">\n' +
+                                '                    <span id="user-'+user.id+'" class="canvi-navigation__icon-wrapper" onclick="shield(this)" style="background: '+color+';">\n' +
                                 '                        <span class="canvi-navigation__icon icon-iconmonstr-code-13"></span>\n' +
                                 '                    </span>\n' +
                                 '                    <span class="canvi-navigation__text">'+user.nick+'</span>\n' +
