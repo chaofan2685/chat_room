@@ -104,6 +104,7 @@ public class MyWebSocket {
                 result.put("type","msg");
                 result.put("msg",map.get("msg"));
                 result.put("sendUser",user.getNickname());
+                result.put("shake",map.get("shake"));
                 break;
             case "init":
                 String room = map.get("room");
