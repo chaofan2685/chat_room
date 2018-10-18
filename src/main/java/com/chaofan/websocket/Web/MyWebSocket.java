@@ -52,7 +52,7 @@ public class MyWebSocket {
         Map<String,String> result = new HashMap<>();
         result.put("type","bing");
         result.put("msg",BingImages.get(random.nextInt(BingImages.size())));
-        result.put("sendUser","系统");
+        result.put("sendUser","系统消息");
         result.put("id",session.getId());
         this.sendMessage(gson.toJson(result));
     }
@@ -74,7 +74,7 @@ public class MyWebSocket {
             Map<String,String> result = new HashMap<>();
             result.put("type","init");
             result.put("msg",nick+"离开房间");
-            result.put("sendUser","系统");
+            result.put("sendUser","系统消息");
             sendMessagesOther(users,gson.toJson(result));
             User closeUser = getUser(session);
             users.remove(closeUser);
@@ -127,7 +127,7 @@ public class MyWebSocket {
                     }
                     result.put("type","init");
                     result.put("msg",nick+"成功加入房间");
-                    result.put("sendUser","系统");
+                    result.put("sendUser","系统消息");
                 }
                 break;
             case "img":

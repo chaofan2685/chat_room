@@ -666,19 +666,19 @@
             case 'init':
                 notification = new Notification(nick,{
                     body: msg,
-                    icon: 'http://'+host+'/msg/mail.png',
+                    icon: 'http://'+host+'/icon/enter.png',
                 });
                 break;
             case 'msg':
                 notification = new Notification(nick,{
                     body: msg,
-                    icon: 'http://'+host+'/msg/mail.png',
+                    icon: 'http://'+host+'/icon/mail.png',
                 });
                 break;
             case 'img':
                 notification = new Notification(nick,{
                     icon: msg,
-                    body: '你收到一张图片',
+                    // body: '你收到一张图片',
                 });
                 break;
             default:
