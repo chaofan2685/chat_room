@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html>
+<html xmlns:v-bind="http://www.w3.org/1999/xhtml">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <title>聊天室</title>
@@ -21,6 +21,8 @@
     <script src="./js/jquery.mCustomScrollbar.min.js"></script>
     <!--the js for this plugin-->
     <script src="./js/jquery.emoji.js"></script>
+    <!--vue-->
+    <script src="./js/vue.min.js"></script>
     <!--引入变量-->
     <script src="./js/common.variate.js"></script>
     <link rel="stylesheet" type="text/css" href="./css/csshake.min.css">
@@ -29,13 +31,13 @@
 
 <body onload="checkNotification()" style="background-color: rgb(230, 230, 230)">
     <aside id="aside" class="myCanvasNav canvi-navbar" data-position="left" data-push-content="false" style="width: 100vw;" inert="" aria-hidden="true">
-        <div class="canvi-user-info" style="padding-top: 20px;padding-bottom: 20px;">
+        <div id="canvi" class="canvi-user-info" style="padding-top: 20px;padding-bottom: 20px;">
             <div class="canvi-user-info__data">
                 <span id="activeRoom" class="canvi-user-info__title">房间号:</span>
                 <a id="activeUser" class="canvi-user-info__meta">开心畅聊每一天😘</a><br>
                 <a id="activePwd" class="canvi-user-info__meta"></a>
             </div>
-            <div onmouseover="delayTips('点击可开启/关闭消息通知',this,{time: -1})" onmouseout="stopTimer()" class="canvi-user-info__close" onclick="silence(),stopTimer()">
+            <div v-bind:title="msgSwitchTips" class="canvi-user-info__close" onclick="silence()">
                 <img id="mute" src="./icon/unmute.png" style="width: 25px;">
             </div>
         </div>
@@ -66,11 +68,11 @@
 
         <div id="footer" class="footer">
             <div id="toolbar" style="padding: 5px;">
-                <img id="emoji" class="shake-constant--hover" onclick="stopTimer()" onmouseover="delayTips(emojiTips,this,{time: -1})" onmouseout="stopTimer()" src="icon/emoji.png" style="width: 26px;margin-left: 10px">
-                <img id="sendImg" onclick="moniSendImg(),stopTimer()" onmouseover="delayTips(pictureTips,this,{time: -1})" onmouseout="stopTimer()" src="icon/picture.png" style="width: 23px;margin-left: 10px">
-                <img id="shakeMsg" class="shake-constant shake-constant--hover" onclick="beginShake(),stopTimer()" onmouseover="delayTips(shakeTips,this,{time: -1})" onmouseout="stopTimer()" src="icon/shakeFalse.png" style="width: 22px;margin-left: 10px">
-                <img id="clear" onclick="emptyScreen(),stopTimer()" onmouseover="delayTips(clearTips,this,{time: -1})" onmouseout="stopTimer()" src="icon/clear.png" style="width: 23px;margin-left: 10px">
-                <img id="send" onmouseover="delayTips(sendTips,this,{time: -1})" onmouseout="stopTimer()" onclick="send(),stopTimer()" src="icon/send.png" style="width: 24px;position: absolute;right: 10px">
+                <img id="emoji" v-bind:title="emojiTips" src="icon/emoji.png" style="width: 26px;margin-left: 10px">
+                <img id="sendImg" v-bind:title="pictureTips" onclick="moniSendImg()" src="icon/picture.png" style="width: 23px;margin-left: 10px">
+                <img id="shakeMsg" v-bind:title="shakeTips" class="shake-constant shake-constant--hover" onclick="beginShake()" src="icon/shakeFalse.png" style="width: 22px;margin-left: 10px">
+                <img id="clear" v-bind:title="clearTips" onclick="emptyScreen()"src="icon/clear.png" style="width: 23px;margin-left: 10px">
+                <img id="send" v-bind:title="sendTips" onclick="send()" src="icon/send.png" style="width: 24px;position: absolute;right: 10px">
             </div>
             <div id="text" contenteditable="true"></div>
         </div>
@@ -493,7 +495,7 @@
                         if (user.id != $("#userId").val()){
                             var html = '<li>\n' +
                                 '                <a class="canvi-navigation__item">\n' +
-                                '                    <span id="user-'+user.id+'" class="canvi-navigation__icon-wrapper" onclick="shield(this)" style="background: '+color+';">\n' +
+                                '                    <span title="点击屏蔽此人，不让其接收自己的消息" id="user-'+user.id+'" class="canvi-navigation__icon-wrapper" onclick="shield(this)" style="background: '+color+';">\n' +
                                 '                        <span class="canvi-navigation__icon icon-iconmonstr-code-13"></span>\n' +
                                 '                    </span>\n' +
                                 '                    <span class="canvi-navigation__text">'+user.nick+'</span>\n' +
@@ -764,6 +766,24 @@
         $(".login").animate({height:'300px'},300);
         $("#password").attr('placeholder',message);
     }
+
+    new Vue({
+            el: '#toolbar',
+            data: {
+                emojiTips : emojiTips,
+                pictureTips : pictureTips,
+                shakeTips : shakeTips,
+                clearTips : clearTips,
+                sendTips : sendTips,
+            }
+        })
+
+    new Vue({
+        el: '#canvi',
+        data: {
+            msgSwitchTips : msgSwitchTips
+        }
+    })
 
 </script>
 </html>
