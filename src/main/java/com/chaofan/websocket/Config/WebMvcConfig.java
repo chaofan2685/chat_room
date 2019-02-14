@@ -1,4 +1,4 @@
-package com.chaofan.websocket.config;
+package com.chaofan.websocket.Config;
 
 import org.springframework.boot.system.ApplicationHome;
 import org.springframework.context.annotation.Configuration;

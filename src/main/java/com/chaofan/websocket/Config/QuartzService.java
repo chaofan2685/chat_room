@@ -1,4 +1,4 @@
-package com.chaofan.websocket.config;
+package com.chaofan.websocket.Config;
 
 import com.chaofan.websocket.Util.BingImageUtil;
 import com.chaofan.websocket.Web.SocketController;

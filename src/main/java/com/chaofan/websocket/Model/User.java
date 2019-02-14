@@ -1,4 +1,4 @@
-package com.chaofan.websocket.module.model;
+package com.chaofan.websocket.Model;
 
 import com.chaofan.websocket.Web.MyWebSocket;
 

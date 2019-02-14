@@ -2,8 +2,7 @@ package com.chaofan.websocket.Web;
 
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
-import com.chaofan.websocket.WebsocketApplication;
-import com.chaofan.websocket.module.model.User;
+import com.chaofan.websocket.Model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.system.ApplicationHome;

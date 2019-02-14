@@ -1,7 +1,7 @@
 package com.chaofan.websocket.Web;
 
 import cn.hutool.core.util.StrUtil;
-import com.chaofan.websocket.module.model.User;
+import com.chaofan.websocket.Model.User;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.springframework.stereotype.Component;

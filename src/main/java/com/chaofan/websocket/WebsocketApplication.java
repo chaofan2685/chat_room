@@ -1,6 +1,5 @@
 package com.chaofan.websocket;
 
-import com.chaofan.websocket.Util.BingImageUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -26,7 +25,5 @@ public class WebsocketApplication {
 					"\n[----------------------------------------------------------",
 				InetAddress.getLocalHost().getHostAddress(),
 				env.getProperty("server.port"));
-		LOGGER.debug("本次同步了"+BingImageUtil.download(0,7)+"张壁纸！");
-		LOGGER.debug("本次同步了"+BingImageUtil.download(7,7)+"张壁纸！");
 	}
 }
