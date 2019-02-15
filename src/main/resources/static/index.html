@@ -79,7 +79,7 @@
 
         <form id="imageUp" style="display: none">
             <a href='javascript:void(0);' class="blueButton">发图</a>
-            <input type="file" class="myFileUpload" name="fileName" id="image" onchange="sendImg()"/>
+            <input type="file" class="myFileUpload" name="file" id="image" onchange="sendImg(this)"/>
         </form>
     </div>
 
@@ -214,6 +214,14 @@
     function stopShake(obj) {
         var array = $(obj).attr("class").split(" ")
         $(obj).removeClass(array[3]);
+    }
+
+    // 查看原图
+    function originalImage(obj) {
+        layer.photos({
+            photos: obj
+            ,anim: 5 //0-6的选择，指定弹出图片动画类型，默认随机（请注意，3.0之前的版本用shift参数）
+        });
     }
 
     //将消息显示在网页上
@@ -576,42 +584,94 @@
     })
 
 
-    function sendImg() {
+    function sendImg(obj) {
         var file = document.getElementById("imageUp");
         var image = document.getElementById("image");
-        loadImage(image);
         if (!(image.value == null || image.value == "")){
-            var form = new FormData(file);
+            var img = getObjectURL(obj.files[0]);
             var nick = document.getElementById('nick').value;
-            $.ajax({
-                url: "/ws/fileUpload",
-                type: "POST",
-                data: form,
-                async:false,
-                processData:false,
-                contentType:false,
-                success: function (data) {
-                    image.value = null;
-                    var url = data.url;
-                    setImgInnerHTML2(nick,url);
-                    if (url != null && url != ""){
-                        var map = new Map();
-                        map.set("type","img");
-                        map.set("msg",url);
-                        var shiels = new Array();
-                        shieldMap.forEach(function (value) {
-                            shiels.push(value);
-                        })
-                        map.set("shiels",shiels);
-                        var map2json=Map2Json(map);
-                        websocket.send(map2json);
-                    }
-                },
-                error: function (data) {
-                    layer.msg("失败",{anim: 6});
-                }
-            });
+            setImgInnerHTML2(nick,img);
+            var form = new FormData(file);
+            loadImage(image,1024);
+            upImgByLocalApi(form);
+            // form.append("type","multipart");
+            // loadImage(image,10240);
+            // setTimeout(function(){ upImgByFigureBed(form); }, 300);
+            image.value = null;
         }
+    }
+
+    function getObjectURL(file) {
+        var url = null;
+        if (window.createObjcectURL != undefined) {
+            url = window.createOjcectURL(file);
+        } else if (window.URL != undefined) {
+            url = window.URL.createObjectURL(file);
+        } else if (window.webkitURL != undefined) {
+            url = window.webkitURL.createObjectURL(file);
+        }
+        return url;
+    }
+
+    //使用图床上传图片
+    function upImgByFigureBed(form) {
+        // var url;
+        $.ajax({
+            url: "http://api.yum6.cn/sinaimg.php",
+            type: "POST",
+            data: form,
+            async:false,
+            processData:false,
+            contentType:false,
+            success: function (data) {
+                var url =  data.url.replace("thumb150","large");
+                if (url != null && url != ""){
+                    var map = new Map();
+                    map.set("type","img");
+                    map.set("msg",url);
+                    var shiels = new Array();
+                    shieldMap.forEach(function (value) {
+                        shiels.push(value);
+                    })
+                    map.set("shiels",shiels);
+                    var map2json=Map2Json(map);
+                    websocket.send(map2json);
+                }
+            },
+            error: function (data) {
+                layer.msg("失败",{anim: 6});
+            }
+        });
+    }
+
+    //使用系统本身接口上传图片
+    function upImgByLocalApi(form) {
+        $.ajax({
+            url: "/ws/fileUpload",
+            type: "POST",
+            data: form,
+            async:false,
+            processData:false,
+            contentType:false,
+            success: function (data) {
+                var url = data.url;
+                if (url != null && url != ""){
+                    var map = new Map();
+                    map.set("type","img");
+                    map.set("msg",url);
+                    var shiels = new Array();
+                    shieldMap.forEach(function (value) {
+                        shiels.push(value);
+                    })
+                    map.set("shiels",shiels);
+                    var map2json=Map2Json(map);
+                    websocket.send(map2json);
+                }
+            },
+            error: function (data) {
+                layer.msg("失败",{anim: 6});
+            }
+        });
     }
 
     function Map2Json(map) {
@@ -624,7 +684,8 @@
         return str;
     }
 
-    function loadImage(img) {
+    //校验图片类型及大小
+    function loadImage(img,size) {
         var filePath = img.value;
         var fileExt = filePath.substring(filePath.lastIndexOf("."))
             .toLowerCase();
@@ -635,7 +696,7 @@
             return;
         }
         if (img.files && img.files[0]) {
-            if ((img.files[0].size / 1024).toFixed(0) > 1024){
+            if ((img.files[0].size / 1024).toFixed(0) > size){
                 layer.msg("图片不能超过1M,请重新选择",{anim: 6});
                 img.value = "";
                 return;

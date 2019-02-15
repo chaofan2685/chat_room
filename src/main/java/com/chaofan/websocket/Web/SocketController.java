@@ -106,7 +106,7 @@ public class SocketController {
      * 实现文件上传
      * */
     @RequestMapping("/fileUpload")
-    public Map<String,Object> fileUpload(HttpServletRequest request, @RequestParam("fileName") MultipartFile file){
+    public Map<String,Object> fileUpload(HttpServletRequest request, @RequestParam("file") MultipartFile file){
         Map<String,Object> result = new HashMap<>();
         //获取项目访问路径
         String root = request.getRequestURL().toString().replace(request.getRequestURI(),"");
