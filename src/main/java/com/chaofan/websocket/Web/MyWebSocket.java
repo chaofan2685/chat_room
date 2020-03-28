@@ -4,6 +4,8 @@ import cn.hutool.core.util.StrUtil;
 import com.chaofan.websocket.Model.User;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.websocket.*;
@@ -19,6 +21,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
 @ServerEndpoint(value = "/websocket")
 @Component
 public class MyWebSocket {
+    private static final Logger logger = LoggerFactory.getLogger(MyWebSocket.class);
+
     //静态变量，用来记录当前在线连接数。应该把它设计成线程安全的。
     private static int onlineCount = 0;
 
@@ -47,6 +51,7 @@ public class MyWebSocket {
      */
     @OnOpen
     public void onOpen(Session session) throws IOException {
+        logger.debug("---------------------成功与{}建立连接---------------------",session.getId());
         this.session = session;
         addOnlineCount();
         Map<String,String> result = new HashMap<>();
@@ -136,6 +141,8 @@ public class MyWebSocket {
                 result.put("msg",map.get("msg"));
                 result.put("sendUser",user.getNickname());
                 break;
+            case "ping":
+                return;
         }
         if (StrUtil.isEmpty(shiels)){
             sendMessagesOther(getUsers(session),gson.toJson(result));
@@ -151,7 +158,30 @@ public class MyWebSocket {
      */
     @OnError
     public void onError(Session session, Throwable error) {
-        System.out.println("发生错误");
+        logger.debug("---------------------与{}的连接发生错误---------------------",session.getId());
+        subOnlineCount();
+        CopyOnWriteArraySet<User> users = getUsers(session);
+        if (users!=null){
+            String nick = "某人";
+            for (User user : users) {
+                if (user.getId().equals(session.getId())){
+                    nick = user.getNickname();
+                }
+            }
+            Map<String,String> result = new HashMap<>();
+            result.put("type","init");
+            result.put("msg",nick+"离开房间");
+            result.put("sendUser","系统消息");
+            sendMessagesOther(users,gson.toJson(result));
+            User closeUser = getUser(session);
+            users.remove(closeUser);
+            if (users.size() == 0){
+                String room = RoomForUser.get(session.getId());
+                UserForRoom.remove(room);
+                PwdForRoom.remove(room);
+            }
+            RoomForUser.remove(session.getId());
+        }
         error.printStackTrace();
     }
 

@@ -135,7 +135,9 @@
     };
 
     //连接成功建立的回调方法
-    websocket.onopen = function(event){}
+    websocket.onopen = function(event){
+        self.setInterval("ping()",55000);
+    }
 
     // 鼠标悬停在某些按钮上时延迟Tips
     function delayTips(tips,obj,style,time){
@@ -321,6 +323,14 @@
         }else {
             layer.msg("发空消息是什么意思呢？🤔",{anim: 6});
         }
+    }
+
+    //服务端如果用nginx做转发,可能会因'proxy_read_timeout'配置的过短而自动断开连接,默认是一分钟,所以发送心跳连接,保证不聊天的状态下不会断开
+    function ping() {
+        var map = new Map();
+        map.set("type","ping");
+        var map2json=Map2Json(map);
+        websocket.send(map2json);
     }
 
     // 将文本转换回emoji图片
