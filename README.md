@@ -29,16 +29,22 @@ Spring Boot + WebSocket
 #### 界面展示
 ##### 1. 登录界面
 
-![登录界面](https://images.gitee.com/uploads/images/2018/1010/103255_33f93edd_687582.jpeg "登录.jpg")
+<img src="https://images.gitee.com/uploads/images/2018/1010/103255_33f93edd_687582.jpeg" alt="登录界面" title="登录.jpg" style="zoom: 33%;" />
 
 ##### 2. 主界面
 
-![主界面](https://images.gitee.com/uploads/images/2018/1015/103910_60e496f7_687582.jpeg "TIM截图20181015100719.jpg")
+<img src="https://images.gitee.com/uploads/images/2018/1015/103910_60e496f7_687582.jpeg" alt="主界面" title="TIM截图20181015100719.jpg" style="zoom:33%;" />
 
 ##### 3. 消息通知
 
-![输入图片说明](https://images.gitee.com/uploads/images/2018/1015/103941_7cc8a1fb_687582.jpeg "TIM截图20181015103529.jpg")
+<img src="https://images.gitee.com/uploads/images/2018/1015/103941_7cc8a1fb_687582.jpeg" alt="输入图片说明" title="TIM截图20181015103529.jpg" style="zoom:33%;" />
 
-#### 在线演示（抱歉，服务器已经停止运行了😁）
+#### 演示地址
 
-http://118.126.94.29:18011/
+- ##### [在线演示地址](http://chat.chaofan.ga)
+
+- ##### [备用演示地址](http://54.249.86.74:18011)
+
+#### 打个广告
+
+​		我的另一个不值一提项目[kings_poster](https://gitee.com/chaofan2685_admin/kings_poster)可以下载王者荣耀皮肤原画，图片都是高清的，有兴趣的话可以去参观一下呦！[演示地址](http://king.chaofan.ga) [备用地址](http://54.249.86.74:18012)
